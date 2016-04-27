@@ -1,0 +1,37 @@
+Texting via email is very easy.
+
+1. Enter 10 digit number into app
+2. App makes POST request with
+
+	{
+		"number": 1234567890,
+		"name": "person's name"
+		"data": "HEX-IMAGE-DATA"
+	}
+
+3a. Store # in DB?
+4. Decode hex data into jpeg
+5. Hash image, save to /pics/IMAGE-HASH.jpeg
+6a. Send email via SMS-to-email gateway:
+
+AT&T: number@txt.att.net
+T-Mobile: number@tmomail.net
+Verizon: number@vtext.com
+Sprint: number@messaging.sprintpcs.com or number@pm.sprint.com
+Virgin Mobile: number@vmobl.com
+Tracfone: number@mmst5.tracfone.com
+Metro PCS: number@mymetropcs.com
+Boost Mobile: number@myboostmobile.com
+Cricket: number@sms.mycricket.com
+Nextel: number@messaging.nextel.com
+Alltel: number@message.alltel.com
+Ptel: number@ptel.com
+Suncom: number@tms.suncom.com
+Qwest: number@qwestmp.com
+U.S. Cellular: number@email.uscc.net
+
+We do not need to know carrier beforehand. Just try them all.
+
+6b. No email subject. Email body is 1.1.1.1/pics/IMAGE-HASH.jpeg
+
+7. Send email & profit!
