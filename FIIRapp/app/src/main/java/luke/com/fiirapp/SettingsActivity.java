@@ -44,7 +44,7 @@ public class SettingsActivity extends Activity {
         if(android.os.Build.VERSION.SDK_INT >= 21) {
             settingsBG.getContext().startActivity(intent,
                     ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            overridePendingTransition(R.anim.gallery_slide_in, android.R.anim.fade_out);
         }else{
             settingsBG.getContext().startActivity(intent);
         }

@@ -105,12 +105,10 @@ public class MainActivity extends Activity {
 
     void openSettings(){
         Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+        scrollView.getContext().startActivity(intent);
+
         if(android.os.Build.VERSION.SDK_INT >= 21) {
-            scrollView.getContext().startActivity(intent,
-                    ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
-            overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
-        }else{
-            scrollView.getContext().startActivity(intent);
+            overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
         }
     }
 
