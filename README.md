@@ -1,20 +1,22 @@
 # FIIR-backend
 Database and API endpoints for FIIR app
 
-## API Endpoints
+## REST API Endpoints
 
-### Done
-POST  pics/create  {}
+Promo code is known as `token` in the following
+
+| Endpoint               | Type | Parameters                                                   | Done? |
+| ---------------------- | ---- | ------------------------------------------------------------ | ----- |
+| /users/create          | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | no |
+| /pics/create           | POST | {key:"key", user:"userid", price:"price", token:"code/null"} | no    |
+| /pics/created          | GET  | {key:"key", user:"userid"}                                   | no    |
+| /friends/list          | GET  | {key:"key", user:"userid"}                                   | no    |
+| /friends/add           | POST | {key:"key", user:"userid", friend:"userid"}                  | no    |
+| /friends/remove        | POST | {key:"key", user:"userid", friend:"userid"}                  | no    |
+| /settings/update_email | POST | {key:"key", user:"userid", email:"emailaddress"}             | no    |
+| /settings/update_phone | POST | {key:"key", user:"userid", phone:"phonenumber"}              | no    |
 
 
-### Upcoming
-GET   pics/created  
-POST  pics/update  
-GET   friends/list  
-POST  friends/add  
-POST  friends/remove  
-POST  settings/update_email  
-POST  settings/update_phone
 
 ## Number verification
 We will be using API of numverify.con to determine carriers for any given number. We will then use the email to SMS gateway to send messages to the correct carrier:
