@@ -11,12 +11,9 @@ import hashlib
 import MySQLdb
 import sys
 import _mysql_exceptions
-from config import Config
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 from socketserver import ThreadingMixIn
-import extractMetaData
-
 
 
 
@@ -27,17 +24,24 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 class MyServer(BaseHTTPRequestHandler):
 
 
-
-
-
+    def json_header(self,status_code=200):
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
 
     def do_GET(self):
+        print("do_get")
+        self.json_header()
+        self.wfile.write(bytes('{"status":"GET still in progress"}', "utf-8"))
+
 
 
 
 
     def do_POST(self):
-
+        print("do_post")
+        self.json_header()
+        self.wfile.write(bytes('{"status":"GET still in progress"}', "utf-8"))
 
 
 def main():

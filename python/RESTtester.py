@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import warnings
 import os.path
 import time
@@ -10,14 +12,12 @@ import hashlib
 import MySQLdb
 import sys
 import _mysql_exceptions
-from config import Config
 import requests
 import json
 import email.utils
 
 
 
-
 headers = {'Content-Type': 'text/xml'}
-quest = '<delete><query>(type:1)AND(episode_id:%s)</query></delete>' %(episode_id,)
-r = requests.post("http://localhost:8983/solr/"+self.coreName+"/update", data=quest, headers=headers)
+quest = '<delete><query>(type:1)AND(episode_id:)</query></delete>' 
+r = requests.post("http://localhost:9096/solr/update", data=quest, headers=headers)
