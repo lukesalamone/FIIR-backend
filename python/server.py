@@ -39,9 +39,15 @@ class MyServer(BaseHTTPRequestHandler):
 
 
     def do_POST(self):
+        requestPath = self.path
+        requestList = requestPath.split('/')
+        if len(requestList)!=3 or requestList[0]!= '':
+            self.json_header(400)
+            self.wfile.write(bytes('{"error":"invalid request format"}', "utf-8"))
         print("do_post")
+        print("self.path=%s"%(self.path,))
         self.json_header()
-        self.wfile.write(bytes('{"status":"GET still in progress"}', "utf-8"))
+        self.wfile.write(bytes('{"status":"POST still in progress"}', "utf-8"))
 
 
 def main():

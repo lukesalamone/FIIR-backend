@@ -18,6 +18,6 @@ import email.utils
 
 
 
-headers = {'Content-Type': 'text/xml'}
-quest = '<delete><query>(type:1)AND(episode_id:)</query></delete>' 
-r = requests.post("http://localhost:9096/solr/update", data=quest, headers=headers)
+headers = {'Content-Type': 'application/json'}
+quest = '{"phone":"1234567890", "invitedby":"1", "email":"test@gmail.com"}' 
+r = requests.post("http://localhost:9096/fiir/update", data=quest, headers=headers)
