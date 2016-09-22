@@ -14,7 +14,7 @@ import _mysql_exceptions
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 from socketserver import ThreadingMixIn
-
+from config import Config
 
 
 
@@ -41,23 +41,50 @@ class MyServer(BaseHTTPRequestHandler):
             self.json_header(400)
             self.wfile.write(bytes('{"error":"invalid request format"}', "utf-8"))
         print("do_post")
-        print("self.path=%s"%(self.path,))
 
         if requestList[1]=='users' and requestList[2]=='create':
             self.user_create()
 
     def user_create(self):
-        print("user_create: self.path=%s"%(self.path,))
+
+        #read in content
+        varLen = int(self.headers['Content-Length'])
+        postVars = self.rfile.read(varLen)
+        postContent = None
+        try:
+            postContent = json.loads(postVars.decode('utf-8'))
+        except BaseException as e:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"errors parsing json object:%s"}'%(str(e),), "utf-8"))
+            return
+
+        #json format validation
+        if 'phone' in postContent and 'invitedby' in postContent and 'email' in postContent:
+            phoneNumber = postContent['phone']
+            invitedBy = postContent['invitedby']
+            email = postContent['email']
+        else:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"errors parsing json object:%s"}'%(str(e),), "utf-8"))
+            return
+
+        #update database
+        conf = Config()     #load configuration
+        connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8') 
+        curMy = connMy.cursor()
+        query = "INSERT INTO USER (phone_number,invited_by,email_address) VALUES (%s,%s,%s);"
+        curMy.execute(query,(phoneNumber,invitedBy,email));
+        connMy.commit();
+
+        #send success response
         self.json_header()
-        self.wfile.write(bytes('{"status":"POST still in progress"}', "utf-8"))
-
-
+        self.wfile.write(bytes('{"status":"user successfully created"}', "utf-8"))
 
 
 
 def main():
 
-    hostName = "localhost"
+    hostName = "0.0.0.0"
     hostPort = 9096
     myServer = ThreadedHTTPServer((hostName, hostPort), MyServer)
     print(time.asctime(), "Server Starts - %s:%s" % (hostName, hostPort))

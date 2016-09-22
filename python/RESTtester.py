@@ -17,10 +17,65 @@ import json
 import email.utils
 
 
+class fiirRestTester:
 
-headers = {'Content-Type': 'application/json'}
-quest = '{"phone":"1234567890", "invitedby":"1", "email":"test@gmail.com"}' 
-r = requests.post("http://localhost:9096/users/create", data=quest, headers=headers)
-print(str(r))
+    def createUser():
+        print("create user")
+        headers = {'Content-Type': 'application/json'}
+        quest = '{"phone":"1234567890", "invitedby":1, "email":"test@gmail.com"}' 
+        r = requests.post("http://fiirapp.ddns.net:9096/users/create", data=quest, headers=headers)
+        print(str(r))
+        print(str(r.text))
 
 
+    def createPic():
+        print("create pic")
+        headers = {'Content-Type': 'application/json'}
+        quest = '{"key":"secret","tag_1":"travel", "user":1, "price":12, "token":"YUJN58HJI8UJ5R"}'
+        r = requests.post("http://fiirapp.ddns.net:9096/pics/create", data=quest, headers=headers)
+        print(str(r))
+        print(str(r.text))
+
+
+    def addFriend():
+        print("add friend")
+        headers = {'Content-Type': 'application/json'}
+        quest = '{"key":"secret", "user":1, "friend":3}'
+        r = requests.post("http://fiirapp.ddns.net:9096/friends/add", data=quest, headers=headers)
+        print(str(r))
+        print(str(r.text))
+
+    def removeFriend():
+        print("remove friend")
+        headers = {'Content-Type': 'application/json'}
+        quest = '{"key":"secret", "user":1, "friend":3}'
+        r = requests.post("http://fiirapp.ddns.net:9096/friends/remove", data=quest, headers=headers)
+        print(str(r))
+        print(str(r.text))
+
+    def updateEmail():
+        print("update Email")
+        headers = {'Content-Type': 'application/json'}
+        quest = '{"key":"secret", "user":1, "email":"newemail@gmail.com"}'
+        r = requests.post("http://fiirapp.ddns.net:9096/settings/update_email", data=quest, headers=headers)
+        print(str(r))
+        print(str(r.text))
+
+    def updatePhone():
+        print("update Phone")
+        headers = {'Content-Type': 'application/json'}
+        quest = '{"key":"secret", "user":1, "phone":"1333333333"}'
+        r = requests.post("http://fiirapp.ddns.net:9096/settings/update_phone", data=quest, headers=headers)
+        print(str(r))
+        print(str(r.text))
+
+
+
+
+def main():
+    tester = fiirRestTester
+    tester.createUser()
+
+
+if __name__ == '__main__':
+    main()
