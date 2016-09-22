@@ -20,4 +20,7 @@ import email.utils
 
 headers = {'Content-Type': 'application/json'}
 quest = '{"phone":"1234567890", "invitedby":"1", "email":"test@gmail.com"}' 
-r = requests.post("http://localhost:9096/fiir/update", data=quest, headers=headers)
+r = requests.post("http://localhost:9096/users/create", data=quest, headers=headers)
+print(str(r))
+
+

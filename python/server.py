@@ -34,10 +34,6 @@ class MyServer(BaseHTTPRequestHandler):
         self.json_header()
         self.wfile.write(bytes('{"status":"GET still in progress"}', "utf-8"))
 
-
-
-
-
     def do_POST(self):
         requestPath = self.path
         requestList = requestPath.split('/')
@@ -46,8 +42,17 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes('{"error":"invalid request format"}', "utf-8"))
         print("do_post")
         print("self.path=%s"%(self.path,))
+
+        if requestList[1]=='users' and requestList[2]=='create':
+            self.user_create()
+
+    def user_create(self):
+        print("user_create: self.path=%s"%(self.path,))
         self.json_header()
         self.wfile.write(bytes('{"status":"POST still in progress"}', "utf-8"))
+
+
+
 
 
 def main():
