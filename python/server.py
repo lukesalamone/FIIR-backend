@@ -80,7 +80,7 @@ class MyServer(BaseHTTPRequestHandler):
 
         #send back picture list
         self.json_header()
-        self.wfile.write(bytes('{"status":"success","pictures":%s}'%(pictures,), "utf-8"))
+        self.wfile.write(bytes('{"status":"success","num_pic":%s,"pictures":%s}'%(len(result),pictures), "utf-8"))
 
     def listFriends(self,queryList):
         #query format validation
@@ -110,12 +110,12 @@ class MyServer(BaseHTTPRequestHandler):
             friendSince = row[4]
             if len(friends)!=1:
                 friends +=','
-            friends +='{"uid":%s,"phone_number":%s,"email_address":"%s","name":"%s","friend_since":"%s"}'%(uid,phone_number,email_address,name,friendSince)
+            friends +='{"uid":%s,"phone_number":"%s","email_address":"%s","name":"%s","friend_since":"%s"}'%(uid,phone_number,email_address,name,friendSince)
         friends +="]"
 
         #send back picture list
         self.json_header()
-        self.wfile.write(bytes('{"status":"success","friends":%s}'%(friends,), "utf-8"))
+        self.wfile.write(bytes('{"status":"success","num_friend":%s,"friends":%s}'%(len(result),friends), "utf-8"))
     
 
 
