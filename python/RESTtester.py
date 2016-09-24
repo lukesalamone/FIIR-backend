@@ -37,10 +37,10 @@ class fiirRestTester:
         print(str(r.text))
 
 
-    def addFriend():
+    def addFriend(user,friend):
         print("add friend")
         headers = {'Content-Type': 'application/json'}
-        quest = '{"key":"secret", "user":1, "friend":3}'
+        quest = '{"key":"secret", "user":%s, "friend":%s}'%(user,friend)
         r = requests.post("http://fiirapp.ddns.net:9096/friends/add", data=quest, headers=headers)
         print(str(r))
         print(str(r.text))
@@ -69,8 +69,17 @@ class fiirRestTester:
         print(str(r))
         print(str(r.text))
 
+    def listFriends(user=1):
+        print("list friends")
+        r = requests.get("http://fiirapp.ddns.net:9096/friends/list?key=123&user=%s"%(user,))
+        print(str(r))
+        print(str(r.text))
 
-
+    def listPictures(user=1):
+        print("list friends")
+        r = requests.get("http://fiirapp.ddns.net:9096/pics/created?key=123&user=%s"%(user,))
+        print(str(r))
+        print(str(r.text))
 
 def main():
     tester = fiirRestTester
@@ -78,8 +87,10 @@ def main():
     #tester.createPic()
     #tester.updatePhone()
     #tester.updateEmail()
-    #tester.addFriend()
-    tester.removeFriend()
+    #tester.addFriend(1,5)
+    #tester.removeFriend()
+    #tester.listFriends(3)
+    tester.listPictures(user=1)
 
 if __name__ == '__main__':
     main()
