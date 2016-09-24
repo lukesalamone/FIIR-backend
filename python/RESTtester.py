@@ -22,7 +22,7 @@ class fiirRestTester:
     def createUser():
         print("create user")
         headers = {'Content-Type': 'application/json'}
-        quest = '{"phone":"1234567890", "invitedby":1, "email":"test@gmail.com"}' 
+        quest = '{"phone":"1234567890", "invitedby":2, "email":"123@gmail.com"}' 
         r = requests.post("http://fiirapp.ddns.net:9096/users/create", data=quest, headers=headers)
         print(str(r))
         print(str(r.text))
@@ -64,7 +64,7 @@ class fiirRestTester:
     def updatePhone():
         print("update Phone")
         headers = {'Content-Type': 'application/json'}
-        quest = '{"key":"secret", "user":1, "phone":"1333333333"}'
+        quest = '{"key":"secret", "user":3, "phone":"888"}'
         r = requests.post("http://fiirapp.ddns.net:9096/settings/update_phone", data=quest, headers=headers)
         print(str(r))
         print(str(r.text))
@@ -74,8 +74,12 @@ class fiirRestTester:
 
 def main():
     tester = fiirRestTester
-    tester.createUser()
-
+    #tester.createUser()
+    #tester.createPic()
+    #tester.updatePhone()
+    #tester.updateEmail()
+    #tester.addFriend()
+    tester.removeFriend()
 
 if __name__ == '__main__':
     main()
