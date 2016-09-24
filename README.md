@@ -7,14 +7,14 @@ Promo code is known as `token` in the following
 
 | Endpoint               | Type | Parameters                                                   | Done? |
 | ---------------------- | ---- | ------------------------------------------------------------ | ----- |
-| /users/create          | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | no |
-| /pics/create           | POST | {key:"key", user:"userid", price:"price", token:"code/null"} | no    |
+| /users/create          | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | yes|
+| /pics/create           | POST | {key:"key", user:"userid", price:"price", token:"code/null"} | yes   |
 | /pics/created          | GET  | {key:"key", user:"userid"}                                   | no    |
 | /friends/list          | GET  | {key:"key", user:"userid"}                                   | no    |
-| /friends/add           | POST | {key:"key", user:"userid", friend:"userid"}                  | no    |
-| /friends/remove        | POST | {key:"key", user:"userid", friend:"userid"}                  | no    |
-| /settings/update_email | POST | {key:"key", user:"userid", email:"emailaddress"}             | no    |
-| /settings/update_phone | POST | {key:"key", user:"userid", phone:"phonenumber"}              | no    |
+| /friends/add           | POST | {key:"key", user:"userid", friend:"userid"}                  | yes   |
+| /friends/remove        | POST | {key:"key", user:"userid", friend:"userid"}                  | yes   |
+| /settings/update_email | POST | {key:"key", user:"userid", email:"emailaddress"}             | yes   |
+| /settings/update_phone | POST | {key:"key", user:"userid", phone:"phonenumber"}              | yes   |
 
 
 
