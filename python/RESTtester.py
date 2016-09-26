@@ -71,15 +71,30 @@ class fiirRestTester:
 
     def listFriends(key="123",user_id=1):
         print("list friends")
-        r = requests.get("http://fiirapp.ddns.net:9096/friends/list?key=%s&user=%s"%(key,user))
+        r = requests.get("http://fiirapp.ddns.net:9096/friends/list?key=%s&user=%s"%(key,user_id))
         print(str(r))
         print(str(r.text))
 
     def listPictures(key="123",user_id=1):
         print("list friends")
-        r = requests.get("http://fiirapp.ddns.net:9096/pics/created?key=%s&user=%s"%(key,user))
+        r = requests.get("http://fiirapp.ddns.net:9096/pics/created?key=%s&user=%s"%(key,user_id))
         print(str(r))
         print(str(r.text))
+
+    def uploadPicture():
+        print("upload picture")
+        files = {"user":"5","key":"123",'fileToUpload': open('/home/app/backend/python/test.png', 'rb')}
+        r = requests.post("http://fiirapp.ddns.net:9096/pics/create",files=files)
+        print(str(r))
+        print(str(r.text))
+
+    def uploadPicture2():
+        print("upload picture")
+        files = {"name":"uploadedFile",'file': open('/home/app/backend/python/test.png', 'rb')}
+        r = requests.post("http://localhost:8000/pics/create",files=files)
+        print(str(r))
+        print(str(r.text))
+
 
 def main():
     tester = fiirRestTester
@@ -87,10 +102,12 @@ def main():
     #tester.createPic(key="secret",tag1="travel",user_id=1,price=12,token="YUJN58HJI8UJ5R")
     #tester.updatePhone(key="secret",user_id=3,phone="1234567890")
     #tester.updateEmail(user_id = 1, email = "newemail@gmail.com")
-    tester.addFriend(user_id=1,friend_id=3)
+    #tester.addFriend(user_id=1,friend_id=3)
     #tester.removeFriend(user_id=1,friend_id=3)
-    #listFriends(key="123",user_id=1)
+    #tester.listFriends(key="123",user_id=1)
     #listPictures(key="123",user_id=1)
+    tester.uploadPicture()
+
 
 if __name__ == '__main__':
     main()

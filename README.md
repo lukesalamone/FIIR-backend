@@ -4,17 +4,17 @@ Database and API endpoints for FIIR app
 ## REST API Endpoints
 
 Promo code is known as `token` in the following
-
-| Endpoint               | Type | Parameters                                                   | Done? |
-| ---------------------- | ---- | ------------------------------------------------------------ | ----- |
-| /users/create          | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | yes|
-| /pics/create           | POST | {key:"key", user:"userid", price:"price", token:"code/null"} | yes   |
-| /pics/created          | GET  | {key:"key", user:"userid"}                                   | no    |
-| /friends/list          | GET  | {key:"key", user:"userid"}                                   | no    |
-| /friends/add           | POST | {key:"key", user:"userid", friend:"userid"}                  | yes   |
-| /friends/remove        | POST | {key:"key", user:"userid", friend:"userid"}                  | yes   |
-| /settings/update_email | POST | {key:"key", user:"userid", email:"emailaddress"}             | yes   |
-| /settings/update_phone | POST | {key:"key", user:"userid", phone:"phonenumber"}              | yes   |
+                        
+| Endpoint                    | Type | Parameters                                                      | Done? | Port |
+| ----------------------      | ---- | --------------------------------------------------------------- | ----- | ---- |
+| /users/create               | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | yes   | 9096 |
+| /pics/create                | POST | {key:"key", user:"userid", price:"price", token:"code/null"}    | yes   | 9096 |
+| /pics/created               | GET  | {key:"key", user:"userid"}                                      | yes   | 9096 |
+| /friends/list               | GET  | {key:"key", user:"userid"}                                      | yes   | 9096 |
+| /friends/add:               | POST | {key:"key", user:"userid", friend:"userid"}                     | yes   | 9096 |
+| /friends/remove             | POST | {key:"key", user:"userid", friend:"userid"}                     | yes   | 9096 |
+| /settings/update_email      | POST | {key:"key", user:"userid", email:"emailaddress"}                | yes   | 9096 |
+| /settings/update_phone      | POST | {key:"key", user:"userid", phone:"phonenumber"}                 | yes   | 9096 |
 
 
 

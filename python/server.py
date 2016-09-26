@@ -2,6 +2,7 @@
 import json
 import warnings
 import os.path
+import os
 import time
 import datetime
 from urllib import request
@@ -17,6 +18,13 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import threading
 from socketserver import ThreadingMixIn
 from config import Config
+import cgi
+import re
+from io import StringIO
+import shutil
+import multipart
+import random
+import string
 
 
 
@@ -121,6 +129,14 @@ class MyServer(BaseHTTPRequestHandler):
 
 
     def do_POST(self):
+        print(self.headers)
+        print('*' * 60)
+        if self.headers.get_content_maintype()=="multipart":
+            #self.deal_post_display()
+            self.createPic()
+            return
+
+
         requestPath = self.path
         requestList = requestPath.split('/')
         if len(requestList)!=3 or requestList[0]!= '':
@@ -132,6 +148,7 @@ class MyServer(BaseHTTPRequestHandler):
         varLen = int(self.headers['Content-Length'])
         postVars = self.rfile.read(varLen)
         postContent = None
+        print(postVars)
         try:
             postContent = json.loads(postVars.decode('utf-8'))
         except BaseException as e:
@@ -140,12 +157,9 @@ class MyServer(BaseHTTPRequestHandler):
             return
 
 
-
         #routing
         if requestList[1]=='users' and requestList[2]=='create':
             self.createUser(postContent)
-        elif requestList[1]=='pics' and requestList[2]=='create':
-            self.createPic(postContent)
         elif requestList[1]=='friends' and requestList[2]=='add':
             self.addFriend(postContent)
         elif requestList[1]=='friends' and requestList[2]=='remove':
@@ -154,6 +168,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.updateEmail(postContent)
         elif requestList[1]=='settings' and requestList[2]=='update_phone':
             self.updatePhone(postContent)
+            
         else:
             self.json_header(400)
             self.wfile.write(bytes('{"error":"illegal operation"}', "utf-8"))
@@ -211,27 +226,49 @@ class MyServer(BaseHTTPRequestHandler):
 
 
 
-    def createPic(self,postContent):
-
-
-        #json format validation
-        if 'key' in postContent and 'user' in postContent and 'price' in postContent and 'token' in postContent:
-            key = postContent['key']
-            user = postContent['user']
-            price = postContent['price']
-            token = postContent['token']
-
-        else:
+    def createPic(self):
+        multiparser = multipart.MultipartParser(self.rfile,self.headers.get_boundary(),content_length=int(self.headers['content-length']))
+        key = multiparser.get("key")
+        user_id = multiparser.get("user")
+        if key is None or user_id is None:
             self.json_header(400)
-            self.wfile.write(bytes('{"status":"errors parsing json object"}', "utf-8"))
+            self.wfile.write(bytes('{"msg":"invalid key field"}', "utf-8"))
             return
 
-        #update database
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
         curMy = connMy.cursor()
-        query = "INSERT INTO PICS (user_id,price) VALUES (%s,%s);"
-        curMy.execute(query,(user,price));
+
+
+        uploadedFile = multiparser.get("fileToUpload")
+        if uploadedFile is None:
+            self.json_header(400)
+            self.wfile.write(bytes('{"msg":"invalid uploaded image"}', "utf-8"))
+            return
+        fileExt = os.path.splitext(uploadedFile.filename)[1]
+        fileNameIsValid = False
+        while fileNameIsValid is False:
+            randomStr = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
+            query = 'SELECT COUNT(*) FROM `PICS` WHERE `filename` = %s'
+            curMy.execute(query,(randomStr+fileExt,));
+            nameCount = curMy.fetchone()[0]
+            if nameCount>0:
+                fileNameIsValid = False
+            else:
+                fileNameIsValid = True
+
+
+
+        uploadedFile.save_as("/var/www/fiir/img/"+randomStr+fileExt)
+        #r, info = self.deal_post_data()
+        #print( "%s,%s,%s,%s"%(r, info, "by: ", self.client_address))
+
+
+        
+
+        #update database
+        query = "INSERT INTO PICS (user_id,filename) VALUES (%s,%s);"
+        curMy.execute(query,(user_id.value,randomStr+fileExt));
         connMy.commit();
         connMy.close()
         #send success response
@@ -318,6 +355,93 @@ class MyServer(BaseHTTPRequestHandler):
         #send success response
         self.json_header()
         self.wfile.write(bytes('{"status":"user successfully created"}', "utf-8"))
+
+    def do_POST2(self):
+        """Serve a POST request."""
+        if self.headers.is_multipart():
+            r, info = self.deal_post_data()
+            print( "%s,%s,%s,%s"%(r, info, "by: ", self.client_address))
+        
+            self.json_header()
+            self.wfile.write(bytes('{"success":"invalid request format"}', "utf-8"))
+
+    def deal_post_display(self):
+        remainbytes = int(self.headers['content-length'])
+        while remainbytes>0:
+            line = self.rfile.readline()
+            remainbytes -= len(line)
+            print(line)
+        return (True,"success")
+
+    def deal_post_data(self):
+        #print(self.headers)
+        #print(type(self.headers))
+        #print(self.headers.get_boundary())
+        boundary = self.headers.get_boundary()
+        remainbytes = int(self.headers['content-length'])
+        line = self.rfile.readline()
+        remainbytes -= len(line)
+        print(type(line))
+        if not str.encode(boundary) in line:
+            return (False, "Content NOT begin with boundary")
+        line = self.rfile.readline()
+        remainbytes -= len(line)
+        print(line)
+        fn = re.findall(str.encode('Content-Disposition.*name="file"; filename="(.*)"'), line)
+        if not fn:
+            return (False, "Can't find out file name...")
+        path = self.translate_path(self.path)
+        print(str(path))
+        fn = os.path.join(path, fn[0])
+        line = self.rfile.readline()
+        remainbytes -= len(line)
+        line = self.rfile.readline()
+        remainbytes -= len(line)
+        try:
+            out = open(fn, 'wb')
+        except IOError:
+            return (False, "Can't create file to write, do you have permission to write?")
+                
+        preline = self.rfile.readline()
+        remainbytes -= len(preline)
+        while remainbytes > 0:
+            line = self.rfile.readline()
+            remainbytes -= len(line)
+            if boundary in line:
+                preline = preline[0:-1]
+                if preline.endswith('\r'):
+                    preline = preline[0:-1]
+                out.write(preline)
+                out.close()
+                return (True, "File '%s' upload success!" % fn)
+            else:
+                out.write(preline)
+                preline = line
+        return (False, "Unexpect Ends of data.")
+
+    def translate_path(self, path):
+        """Translate a /-separated PATH to the local filename syntax.
+        Components that mean special things to the local file system
+        (e.g. drive or directory names) are ignored.  (XXX They should
+        probably be diagnosed.)
+        """
+        # abandon query parameters
+        path = path.split('?',1)[0]
+        path = path.split('#',1)[0]
+        path = posixpath.normpath(urllib.unquote(path))
+        words = path.split('/')
+        words = filter(None, words)
+        path = os.getcwd()
+        for word in words:
+            drive, word = os.path.splitdrive(word)
+            head, word = os.path.split(word)
+            if word in (os.curdir, os.pardir): continue
+            path = os.path.join(path, word)
+        return path
+
+
+
+
 
 
 
