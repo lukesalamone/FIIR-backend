@@ -16,7 +16,20 @@ Promo code is known as `token` in the following
 | /settings/update_email      | POST | {key:"key", user:"userid", email:"emailaddress"}                | yes   | 9096 |
 | /settings/update_phone      | POST | {key:"key", user:"userid", phone:"phonenumber"}                 | yes   | 9096 |
 
+## Starting & Stopping Back-end Server
 
+to start the server, go to ./python and run:
+
+```
+nohup ./server.py >> ../../server.py.out &
+
+```
+
+to stop the server:
+
+```
+killall python3
+```
 
 ## Number verification
 We will be using API of numverify.con to determine carriers for any given number. We will then use the email to SMS gateway to send messages to the correct carrier:

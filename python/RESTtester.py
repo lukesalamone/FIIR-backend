@@ -83,7 +83,7 @@ class fiirRestTester:
 
     def uploadPicture():
         print("upload picture")
-        files = {"user":"5","key":"123",'fileToUpload': open('/home/app/backend/python/test.png', 'rb')}
+        files = {"user":"5","key":"123",'fileToUpload': open('/home/app/test.png', 'rb')}
         r = requests.post("http://fiirapp.ddns.net:9096/pics/create",files=files)
         print(str(r))
         print(str(r.text))
