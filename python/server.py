@@ -131,6 +131,7 @@ class MyServer(BaseHTTPRequestHandler):
     def do_POST(self):
         print(self.headers)
         print('*' * 60)
+        sys.stdout.flush()
         if self.headers.get_content_maintype()=="multipart":
             #self.deal_post_display()
             self.createPic()
@@ -342,19 +343,26 @@ class MyServer(BaseHTTPRequestHandler):
             self.json_header(400)
             self.wfile.write(bytes('{"status":"errors parsing json object"}', "utf-8"))
             return
-
+        salt = randomStr = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
+        password = randomStr = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
+        hashedKey = str(hashlib.sha256(password.encode()).hexdigest())
         #update database
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8') 
         curMy = connMy.cursor()
-        query = "INSERT INTO USER (phone_number,invited_by,email_address) VALUES (%s,%s,%s);"
-        curMy.execute(query,(phoneNumber,invitedBy,email));
+        query = "INSERT INTO USER (phone_number,invited_by,email_address,auth_token,salt) VALUES (%s,%s,%s,%s,%s);"
+        curMy.execute(query,(phoneNumber,invitedBy,email,hashedKey,salt));
         connMy.commit();
+
+        query ="SELECT LAST_INSERT_ID();"
+        curMy.execute(query);
+        user_id = curMy.fetchone()[0]
+
         connMy.close()
 
         #send success response
         self.json_header()
-        self.wfile.write(bytes('{"status":"user successfully created"}', "utf-8"))
+        self.wfile.write(bytes('{"status":"user successfully created","auth_token":"%s","user_id":"%s"}'%(password,user_id), "utf-8"))
 
     def do_POST2(self):
         """Serve a POST request."""
