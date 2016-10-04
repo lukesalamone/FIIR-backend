@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <database>
+        <host>localhost</host>
+        <databasename>fiir</databasename>
+        <user>root</user>
+        <password>1234qwerZ</password>
+    </database>
+</config>
