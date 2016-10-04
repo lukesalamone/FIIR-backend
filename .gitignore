@@ -10,3 +10,6 @@
 
 #vim backup file
 *.swp
+
+#fiir directory
+fiir/
