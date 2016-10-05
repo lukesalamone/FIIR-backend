@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #built application files
 *.apk
 *.ap_
@@ -34,3 +35,20 @@ build/
 
 #NDK
 obj/
+=======
+# Compiled source #
+###################
+*.pyc
+
+
+#vim recover file
+*.py~
+
+*.md~
+
+#vim backup file
+*.swp
+
+#fiir directory
+fiir/
+>>>>>>> 14c51891f6ace5c82ce82155ac084cd0a33a2818
