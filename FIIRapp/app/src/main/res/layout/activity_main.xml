@@ -63,6 +63,8 @@
         android:layout_height="60dp"
         android:layout_alignParentStart="false"
         android:layout_alignParentEnd="false"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentRight="false"
         android:layout_alignParentBottom="true"
         android:background="#820000"
         android:id="@+id/button">
