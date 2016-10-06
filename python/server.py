@@ -90,6 +90,28 @@ class MyServer(BaseHTTPRequestHandler):
         self.json_header()
         self.wfile.write(bytes('{"status":"success","num_pic":%s,"pictures":%s}'%(len(result),pictures), "utf-8"))
 
+    def authenticate(self,user_id,key):
+
+
+        conf = Config()     #load configuration
+        connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
+        curMy = connMy.cursor()
+
+        query = "SELECT auth_token,salt FROM USER WHERE id = %s;"
+        curMy.execute(query,(user_id,));
+        credentials = curMy.fetchone()
+        connMy.close()
+        if credentials is None:
+            return -2
+        auth_token = credentials[0]
+        salt = credentials[1]
+        hashedKey = str(hashlib.sha256((key+salt).encode()).hexdigest())
+        if hashedKey!=auth_token:
+            return -1
+
+        return 0
+
+
     def listFriends(self,queryList):
         #query format validation
         if 'key' in queryList and 'user' in queryList:
@@ -99,10 +121,22 @@ class MyServer(BaseHTTPRequestHandler):
             self.json_header(400)
             self.wfile.write(bytes('{"status":"errors parsing GET query"}', "utf-8"))
             return
+        auth_result = self.authenticate(user,key)
+        if auth_result == -1:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid key"}', "utf-8"))
+            return
+        elif auth_result == -2:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid user id"}', "utf-8"))
+            return 
+
 
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
         curMy = connMy.cursor()
+
+
         query = "SELECT u.id,u.phone_number,u.email_address,u.name,f.date_added FROM FRIENDS AS f, USER AS u WHERE f.friend_id=u.id AND f.user_id=%s;"
         curMy.execute(query,(user,));
         result = curMy.fetchall()
@@ -345,7 +379,7 @@ class MyServer(BaseHTTPRequestHandler):
             return
         salt = randomStr = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
         password = randomStr = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
-        hashedKey = str(hashlib.sha256(password.encode()).hexdigest())
+        hashedKey = str(hashlib.sha256((password+salt).encode()).hexdigest())
         #update database
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8') 
