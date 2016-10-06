@@ -34,10 +34,10 @@ Promo code is known as `token` in the following
 | /users/create               | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | yes   | 9096 |
 | /users/setPromo             | POST | {key:"key", user:"userid", promoCode:"code"}                    | no    | 9096 |
 | /pics/create                | POST | {key:"key", user:"userid", price:"price", token:"code/null"}    | yes   | 9096 |
-| /pics/created               | POST | {key:"key", user:"userid"}                                      | no    | 9096 |
+| /pics/created               | GET  | {key:"key", user:"userid"}                                      | yes   | 9096 |
 | /pics/flag                  | POST | {key:"key", user:"userid", picId:"picture ID"}                  | no    | 9096 |
 | /pics/hide                  | POST | {key:"key", user:"userid", picId:"picture ID"}                  | no    | 9096 |
-| /friends/list               | POST | {key:"key", user:"userid"}                                      | no    | 9096 |
+| /friends/list               | GET  | {key:"key", user:"userid"}                                      | yes   | 9096 |
 | /friends/add:               | POST | {key:"key", user:"userid", friend:"userid"}                     | yes   | 9096 |
 | /friends/remove             | POST | {key:"key", user:"userid", friend:"userid"}                     | yes   | 9096 |
 | /settings/update_email      | POST | {key:"key", user:"userid", email:"emailaddress"}                | yes   | 9096 |

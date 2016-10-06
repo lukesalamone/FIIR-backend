@@ -104,7 +104,7 @@ def main():
     #tester.updateEmail(user_id = 1, email = "newemail@gmail.com")
     #tester.addFriend(user_id=1,friend_id=3)
     #tester.removeFriend(user_id=1,friend_id=3)
-    tester.listFriends(key="DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS",user_id=12)
+    tester.listFriends(key="DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS",user_id=1)
     #listPictures(key="123",user_id=1)
     #tester.uploadPicture()
 

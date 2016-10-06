@@ -69,6 +69,19 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes('{"status":"errors parsing GET query"}', "utf-8"))
             return
 
+        auth_result = self.authenticate(user,key)
+        if auth_result == -1:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid key"}', "utf-8"))
+            return
+        elif auth_result == -2:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid user id"}', "utf-8"))
+            return
+
+
+
+
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
         curMy = connMy.cursor()
@@ -195,7 +208,32 @@ class MyServer(BaseHTTPRequestHandler):
         #routing
         if requestList[1]=='users' and requestList[2]=='create':
             self.createUser(postContent)
-        elif requestList[1]=='friends' and requestList[2]=='add':
+            return
+
+
+        #json format validation
+        if 'key' in postContent and 'user' in postContent:
+            key = postContent['key']
+            user = postContent['user']
+
+        else:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"errors parsing json object"}', "utf-8"))
+            return
+
+        auth_result = self.authenticate(user,key)
+        if auth_result == -1:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid key"}', "utf-8"))
+            return
+        elif auth_result == -2:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid user id"}', "utf-8"))
+            return
+
+
+
+        if requestList[1]=='friends' and requestList[2]=='add':
             self.addFriend(postContent)
         elif requestList[1]=='friends' and requestList[2]=='remove':
             self.removeFriend(postContent)
@@ -211,8 +249,7 @@ class MyServer(BaseHTTPRequestHandler):
 
 
         #json format validation
-        if 'key' in postContent and 'user' in postContent and 'email' in postContent:
-            key = postContent['key']
+        if 'user' in postContent and 'email' in postContent:
             user = postContent['user']
             email = postContent['email']
 
@@ -237,8 +274,7 @@ class MyServer(BaseHTTPRequestHandler):
 
 
         #json format validation
-        if 'key' in postContent and 'user' in postContent and 'phone' in postContent:
-            key = postContent['key']
+        if 'user' in postContent and 'phone' in postContent:
             user = postContent['user']
             phone = postContent['phone']
 
@@ -263,9 +299,8 @@ class MyServer(BaseHTTPRequestHandler):
 
     def createPic(self):
         multiparser = multipart.MultipartParser(self.rfile,self.headers.get_boundary(),content_length=int(self.headers['content-length']))
-        key = multiparser.get("key")
         user_id = multiparser.get("user")
-        if key is None or user_id is None:
+        if user_id is None:
             self.json_header(400)
             self.wfile.write(bytes('{"msg":"invalid key field"}', "utf-8"))
             return
@@ -314,8 +349,7 @@ class MyServer(BaseHTTPRequestHandler):
 
 
         #json format validation
-        if 'key' in postContent and 'user' in postContent and 'friend' in postContent:
-            key = postContent['key']
+        if 'user' in postContent and 'friend' in postContent:
             user = postContent['user']
             friend = postContent['friend']
 
@@ -340,8 +374,7 @@ class MyServer(BaseHTTPRequestHandler):
 
 
         #json format validation
-        if 'key' in postContent and 'user' in postContent and 'friend' in postContent:
-            key = postContent['key']
+        if 'user' in postContent and 'friend' in postContent:
             user = postContent['user']
             friend = postContent['friend']
 
