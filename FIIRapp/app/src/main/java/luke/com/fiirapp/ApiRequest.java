@@ -1,15 +1,23 @@
 package luke.com.fiirapp;
 
 import android.os.Environment;
-
+import android.util.Log;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by luke on 10/5/16.
@@ -32,26 +40,91 @@ public class ApiRequest {
     }
 
     public String[] users_create(String phone, String invitedby, String email){
-        return post.execute("/users/create", phone, invitedby, email);
+        JSONObject params = new JSONObject();
+        try {
+            params.put("phone", phone);
+            params.put("invitedby", new Integer(invitedby));
+            params.put("email", email);
+        } catch (JSONException e){
+            e.printStackTrace();
+            return new String[]{"JSON exception"};
+        }
+        return post.execute("/users/create", params);
     }
     public String[] users_setPromo(String promoCode){
-        return post.execute("/users/setPromo", key, userid, promoCode);
+        JSONObject params = new JSONObject();
+        try {
+            params.put("key", key);
+            params.put("user", new Integer(userid));
+            params.put("promoCode", promoCode);
+        } catch (JSONException e){
+            e.printStackTrace();
+            return new String[]{"JSON exception"};
+        }
+        return post.execute("/users/setPromo", params);
     }
-    public String[] pics_create(String price, String token){
-        return post.execute("/pics/create", key, userid, price, token);
+    // TODO
+    public String[] pics_create(String filepath, String price, String token){
+        JSONObject params = new JSONObject();
+        try {
+            params.put("key", key);
+            params.put("user", new Integer(userid));
+            params.put("file", filepath);
+            params.put("price", new Integer(price));
+            params.put("token", token);
+        } catch (JSONException e){
+            e.printStackTrace();
+            return new String[]{"JSON exception"};
+        }
+        return post.execute("/pics/create", params);
     }
     public String[] pics_created(){
-        return post.execute("/pics/created", key, userid);
+        JSONObject params = new JSONObject();
+        try {
+            params.put("key", key);
+            params.put("user", new Integer(userid));
+        } catch (JSONException e){
+            e.printStackTrace();
+            return new String[]{"JSON exception"};
+        }
+        return post.execute("/pics/created", params);
     }
     public String[] pics_flag(String pictureId){
-        return post.execute("pics/flag", key, userid, pictureId);
+        JSONObject params = new JSONObject();
+        try {
+            params.put("key", key);
+            params.put("user", new Integer(userid));
+            params.put("pictureId", new Integer(pictureId));
+        } catch (JSONException e){
+            e.printStackTrace();
+            return new String[]{"JSON exception"};
+        }
+        return post.execute("pics/flag", params);
     }
     public String[] pics_hide(String pictureId){
-        return post.execute("pics/hide", key, userid, pictureId);
+        JSONObject params = new JSONObject();
+        try {
+            params.put("key", key);
+            params.put("user", new Integer(userid));
+            params.put("pictureId", new Integer(pictureId));
+        } catch (JSONException e){
+            e.printStackTrace();
+            return new String[]{"JSON exception"};
+        }
+        return post.execute("pics/hide", params);
     }
     public String[] friends_list(){
-        return post.execute("friends/list", key, userid);
+        JSONObject params = new JSONObject();
+        try {
+            params.put("key", key);
+            params.put("user", new Integer(userid));
+        } catch (JSONException e){
+            e.printStackTrace();
+            return new String[]{"JSON exception"};
+        }
+        return post.execute("friends/list", params);
     }
+    /*
     public String[] friends_add(String friendId){
         return post.execute("friends/add", key, userid, friendId);
     }
@@ -64,82 +137,65 @@ public class ApiRequest {
     public String[] settings_updatePhone(String phone){
         return post.execute("/settings/update_phone", key, userid, phone);
     }
-
+*/
     private class PostRequest{
-        String url;
-
-        public PostRequest(String url){
-            this.url = url;
+        String baseUrl;
+        URL url;
+        public PostRequest(String baseUrl){
+            this.baseUrl = baseUrl;
         }
 
-        // TODO add additional post params from varargs and parse response json to String[]
-        public String[] execute(String endpoint, String...args){
-            HttpURLConnection connection = null;
-            DataOutputStream outputStream = null;
-            DataInputStream inputStream = null;
-            String pathToOurFile = "/data/file_to_send.mp3";
-            String urlServer = "http://192.168.1.1/handle_upload.php";
-            String lineEnd = "\r\n";
-            String twoHyphens = "--";
-            String boundary =  "*****";
+        public String[] execute(String endpoint, JSONObject params){
+            try {
+                url = new URL(this.baseUrl + endpoint);
+                Log.i("sending to url", url.toString());
+            }catch(MalformedURLException e){
+                return new String[]{"Malformed url: " + this.baseUrl + endpoint};
+            }
 
-            int bytesRead, bytesAvailable, bufferSize;
-            byte[] buffer;
-            int maxBufferSize = 1*1024*1024;
+            ArrayList<String> response = new ArrayList<>();
+            try {
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(15000);
+                conn.setConnectTimeout(15000);
+                conn.setRequestMethod("POST");
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
 
-            try{
-                FileInputStream fileInputStream = new FileInputStream(new File(pathToOurFile) );
-
-                URL url = new URL(urlServer);
-                connection = (HttpURLConnection) url.openConnection();
-
-                // Allow Inputs &amp; Outputs.
-                connection.setDoInput(true);
-                connection.setDoOutput(true);
-                connection.setUseCaches(false);
-
-                // Set HTTP method to POST.
-                connection.setRequestMethod("POST");
-
-                connection.setRequestProperty("Connection", "Keep-Alive");
-                connection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
-
-                outputStream = new DataOutputStream( connection.getOutputStream() );
-                outputStream.writeBytes(twoHyphens + boundary + lineEnd);
-                outputStream.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\";filename=\"" + pathToOurFile +"\"" + lineEnd);
-                outputStream.writeBytes(lineEnd);
-
-                bytesAvailable = fileInputStream.available();
-                bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                buffer = new byte[bufferSize];
-
-                // Read file
-                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-                while (bytesRead > 0)
-                {
-                    outputStream.write(buffer, 0, bufferSize);
-                    bytesAvailable = fileInputStream.available();
-                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                OutputStream os;
+                try{
+                    os = conn.getOutputStream();
+                } catch(java.net.ConnectException e){
+                    e.printStackTrace();
+                    return new String[]{"Error: connection refused"};
                 }
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(os, "UTF-8"));
+                writer.write(params.toString());
 
-                outputStream.writeBytes(lineEnd);
-                outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+                writer.flush();
+                writer.close();
+                os.close();
+                int responseCode = conn.getResponseCode();
 
-                // Responses from the server (code and message)
-                int serverResponseCode = connection.getResponseCode();
-                String serverResponseMessage = connection.getResponseMessage();
-
-                fileInputStream.close();
-                outputStream.flush();
-                outputStream.close();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    Log.i("response", "ok");
+                    String line;
+                    BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    while ((line=br.readLine()) != null) {
+                        response.add(line);
+                    }
+                }else if(responseCode == 400){
+                    Log.i("response code", "400");
+                    return new String[]{"Error 400: BAD REQUEST"};
+                } else {
+                    return new String[]{"Error " + responseCode};
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            catch (Exception e){
-                //Exception handling
-            }
 
-            return new String[]{};
+            return response.toArray(new String[response.size()]);
         }
 
     }
