@@ -25,7 +25,7 @@ import shutil
 import multipart
 import random
 import string
-
+import requests
 
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
@@ -69,6 +69,19 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes('{"status":"errors parsing GET query"}', "utf-8"))
             return
 
+        auth_result = self.authenticate(user,key)
+        if auth_result == -1:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid key"}', "utf-8"))
+            return
+        elif auth_result == -2:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid user id"}', "utf-8"))
+            return
+
+
+
+
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
         curMy = connMy.cursor()
@@ -90,6 +103,28 @@ class MyServer(BaseHTTPRequestHandler):
         self.json_header()
         self.wfile.write(bytes('{"status":"success","num_pic":%s,"pictures":%s}'%(len(result),pictures), "utf-8"))
 
+    def authenticate(self,user_id,key):
+
+
+        conf = Config()     #load configuration
+        connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
+        curMy = connMy.cursor()
+
+        query = "SELECT auth_token,salt FROM USER WHERE id = %s;"
+        curMy.execute(query,(user_id,));
+        credentials = curMy.fetchone()
+        connMy.close()
+        if credentials is None:
+            return -2
+        auth_token = credentials[0]
+        salt = credentials[1]
+        hashedKey = str(hashlib.sha256((key+salt).encode()).hexdigest())
+        if hashedKey!=auth_token:
+            return -1
+
+        return 0
+
+
     def listFriends(self,queryList):
         #query format validation
         if 'key' in queryList and 'user' in queryList:
@@ -99,10 +134,22 @@ class MyServer(BaseHTTPRequestHandler):
             self.json_header(400)
             self.wfile.write(bytes('{"status":"errors parsing GET query"}', "utf-8"))
             return
+        auth_result = self.authenticate(user,key)
+        if auth_result == -1:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid key"}', "utf-8"))
+            return
+        elif auth_result == -2:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid user id"}', "utf-8"))
+            return 
+
 
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
         curMy = connMy.cursor()
+
+
         query = "SELECT u.id,u.phone_number,u.email_address,u.name,f.date_added FROM FRIENDS AS f, USER AS u WHERE f.friend_id=u.id AND f.user_id=%s;"
         curMy.execute(query,(user,));
         result = curMy.fetchall()
@@ -158,10 +205,35 @@ class MyServer(BaseHTTPRequestHandler):
             return
 
 
-        #routing
+        #routing user creation
         if requestList[1]=='users' and requestList[2]=='create':
             self.createUser(postContent)
-        elif requestList[1]=='friends' and requestList[2]=='add':
+            return
+
+
+        #json format validation
+        if 'key' in postContent and 'user' in postContent:
+            key = postContent['key']
+            user = postContent['user']
+
+        else:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"errors parsing json object"}', "utf-8"))
+            return
+
+        auth_result = self.authenticate(user,key)
+        if auth_result == -1:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid key"}', "utf-8"))
+            return
+        elif auth_result == -2:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid user id"}', "utf-8"))
+            return
+
+
+        #routing
+        if requestList[1]=='friends' and requestList[2]=='add':
             self.addFriend(postContent)
         elif requestList[1]=='friends' and requestList[2]=='remove':
             self.removeFriend(postContent)
@@ -177,8 +249,7 @@ class MyServer(BaseHTTPRequestHandler):
 
 
         #json format validation
-        if 'key' in postContent and 'user' in postContent and 'email' in postContent:
-            key = postContent['key']
+        if 'user' in postContent and 'email' in postContent:
             user = postContent['user']
             email = postContent['email']
 
@@ -199,14 +270,18 @@ class MyServer(BaseHTTPRequestHandler):
         self.json_header()
         self.wfile.write(bytes('{"status":"email successfully updated"}', "utf-8"))
 
+    def sanitizePhone(self,number):
+        number=''.join(list(filter(str.isdigit, number)))
+        number= number if len(number)<=10 else number[len(number)-10:] 
+        return number
+
     def updatePhone(self,postContent):
 
 
         #json format validation
-        if 'key' in postContent and 'user' in postContent and 'phone' in postContent:
-            key = postContent['key']
+        if 'user' in postContent and 'phone' in postContent:
             user = postContent['user']
-            phone = postContent['phone']
+            phone = self.sanitizePhone(postContent['phone'])
 
         else:
             self.json_header(400)
@@ -231,10 +306,22 @@ class MyServer(BaseHTTPRequestHandler):
         multiparser = multipart.MultipartParser(self.rfile,self.headers.get_boundary(),content_length=int(self.headers['content-length']))
         key = multiparser.get("key")
         user_id = multiparser.get("user")
-        if key is None or user_id is None:
+        if user_id is None:
             self.json_header(400)
             self.wfile.write(bytes('{"msg":"invalid key field"}', "utf-8"))
             return
+
+        auth_result = self.authenticate(user,key)
+        if auth_result == -1:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid key"}', "utf-8"))
+            return
+        elif auth_result == -2:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"invalid user id"}', "utf-8"))
+            return
+
+
 
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
@@ -280,8 +367,7 @@ class MyServer(BaseHTTPRequestHandler):
 
 
         #json format validation
-        if 'key' in postContent and 'user' in postContent and 'friend' in postContent:
-            key = postContent['key']
+        if 'user' in postContent and 'friend' in postContent:
             user = postContent['user']
             friend = postContent['friend']
 
@@ -306,8 +392,7 @@ class MyServer(BaseHTTPRequestHandler):
 
 
         #json format validation
-        if 'key' in postContent and 'user' in postContent and 'friend' in postContent:
-            key = postContent['key']
+        if 'user' in postContent and 'friend' in postContent:
             user = postContent['user']
             friend = postContent['friend']
 
@@ -336,16 +421,18 @@ class MyServer(BaseHTTPRequestHandler):
 
         #json format validation
         if 'phone' in postContent and 'invitedby' in postContent and 'email' in postContent:
-            phoneNumber = postContent['phone']
+            phoneNumber = self.sanitizePhone(postContent['phone'])
             invitedBy = postContent['invitedby']
             email = postContent['email']
         else:
             self.json_header(400)
             self.wfile.write(bytes('{"status":"errors parsing json object"}', "utf-8"))
             return
+
+
         salt = randomStr = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
         password = randomStr = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
-        hashedKey = str(hashlib.sha256(password.encode()).hexdigest())
+        hashedKey = str(hashlib.sha256((password+salt).encode()).hexdigest())
         #update database
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8') 
@@ -358,20 +445,31 @@ class MyServer(BaseHTTPRequestHandler):
         curMy.execute(query);
         user_id = curMy.fetchone()[0]
 
+
+        res = requests.get("http://apilayer.net/api/validate?access_key=afe1b8406a16a12087107bcaa5c483eb&number=%s&country_code=US&format=1"%(phoneNumber,))
+        telInfo = None
+        try:
+            telInfo = json.loads(res.text)
+        except BaseException as e:
+            print("error: " + str(e))
+
+
+
+        if telInfo is not None and 'line_type' in telInfo and 'carrier' in telInfo and 'location' in telInfo:
+            query = "UPDATE USER SET tel_carrier = %s, tel_location = %s, tel_line_type = %s WHERE id = %s;"
+            curMy.execute(query,(telInfo['carrier'],telInfo['location'],telInfo['line_type'],user_id));
+            connMy.commit();
+
+
+
+
+
         connMy.close()
 
         #send success response
         self.json_header()
         self.wfile.write(bytes('{"status":"user successfully created","auth_token":"%s","user_id":"%s"}'%(password,user_id), "utf-8"))
 
-    def do_POST2(self):
-        """Serve a POST request."""
-        if self.headers.is_multipart():
-            r, info = self.deal_post_data()
-            print( "%s,%s,%s,%s"%(r, info, "by: ", self.client_address))
-        
-            self.json_header()
-            self.wfile.write(bytes('{"success":"invalid request format"}', "utf-8"))
 
     def deal_post_display(self):
         remainbytes = int(self.headers['content-length'])
@@ -380,74 +478,6 @@ class MyServer(BaseHTTPRequestHandler):
             remainbytes -= len(line)
             print(line)
         return (True,"success")
-
-    def deal_post_data(self):
-        #print(self.headers)
-        #print(type(self.headers))
-        #print(self.headers.get_boundary())
-        boundary = self.headers.get_boundary()
-        remainbytes = int(self.headers['content-length'])
-        line = self.rfile.readline()
-        remainbytes -= len(line)
-        print(type(line))
-        if not str.encode(boundary) in line:
-            return (False, "Content NOT begin with boundary")
-        line = self.rfile.readline()
-        remainbytes -= len(line)
-        print(line)
-        fn = re.findall(str.encode('Content-Disposition.*name="file"; filename="(.*)"'), line)
-        if not fn:
-            return (False, "Can't find out file name...")
-        path = self.translate_path(self.path)
-        print(str(path))
-        fn = os.path.join(path, fn[0])
-        line = self.rfile.readline()
-        remainbytes -= len(line)
-        line = self.rfile.readline()
-        remainbytes -= len(line)
-        try:
-            out = open(fn, 'wb')
-        except IOError:
-            return (False, "Can't create file to write, do you have permission to write?")
-                
-        preline = self.rfile.readline()
-        remainbytes -= len(preline)
-        while remainbytes > 0:
-            line = self.rfile.readline()
-            remainbytes -= len(line)
-            if boundary in line:
-                preline = preline[0:-1]
-                if preline.endswith('\r'):
-                    preline = preline[0:-1]
-                out.write(preline)
-                out.close()
-                return (True, "File '%s' upload success!" % fn)
-            else:
-                out.write(preline)
-                preline = line
-        return (False, "Unexpect Ends of data.")
-
-    def translate_path(self, path):
-        """Translate a /-separated PATH to the local filename syntax.
-        Components that mean special things to the local file system
-        (e.g. drive or directory names) are ignored.  (XXX They should
-        probably be diagnosed.)
-        """
-        # abandon query parameters
-        path = path.split('?',1)[0]
-        path = path.split('#',1)[0]
-        path = posixpath.normpath(urllib.unquote(path))
-        words = path.split('/')
-        words = filter(None, words)
-        path = os.getcwd()
-        for word in words:
-            drive, word = os.path.splitdrive(word)
-            head, word = os.path.split(word)
-            if word in (os.curdir, os.pardir): continue
-            path = os.path.join(path, word)
-        return path
-
-
 
 
 

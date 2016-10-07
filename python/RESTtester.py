@@ -98,15 +98,15 @@ class fiirRestTester:
 
 def main():
     tester = fiirRestTester
-    #tester.createUser(phone="1234567890",invitedBy = 2, email = "123@gmail.com")
+    tester.createUser(phone="16083207727",invitedBy = 3, email = "123@gmail.com")
     #tester.createPic(key="secret",tag1="travel",user_id=1,price=12,token="YUJN58HJI8UJ5R")
     #tester.updatePhone(key="secret",user_id=3,phone="1234567890")
     #tester.updateEmail(user_id = 1, email = "newemail@gmail.com")
     #tester.addFriend(user_id=1,friend_id=3)
     #tester.removeFriend(user_id=1,friend_id=3)
-    #tester.listFriends(key="123",user_id=1)
+    #tester.listFriends(key="DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS",user_id=1)
     #listPictures(key="123",user_id=1)
-    tester.uploadPicture()
+    #tester.uploadPicture()
 
 
 if __name__ == '__main__':
