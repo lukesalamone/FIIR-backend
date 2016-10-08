@@ -45,13 +45,23 @@ class fiirRestTester:
         print(str(r))
         print(str(r.text))
 
-    def removeFriend(user_id=1,friend_id=3):
+    def removeFriend(key="secret",user_id=1,friend_id=3):
         print("remove friend")
         headers = {'Content-Type': 'application/json'}
-        quest = '{"key":"secret", "user":%s, "friend":%s}'%(user_id,friend_id)
+        quest = '{"key":"%s", "user":%s, "friend":%s}'%(key,user_id,friend_id)
         r = requests.post("http://fiirapp.ddns.net:9096/friends/remove", data=quest, headers=headers)
         print(str(r))
         print(str(r.text))
+
+    def updatePromo(key = "secret",user_id = 1, promoCode = "XYZ"):
+        print("update Email")
+        headers = {'Content-Type': 'application/json'}
+        quest = '{"key":"%s", "user":%s, "promoCode":"%s"}' %(key,user_id,promoCode)
+        r = requests.post("http://fiirapp.ddns.net:9096/users/setPromo", data=quest, headers=headers)
+        print(str(r))
+        print(str(r.text))
+
+
 
     def updateEmail(user_id = 1, email = "newemail@gmail.com"):
         print("update Email")
@@ -98,16 +108,16 @@ class fiirRestTester:
 
 def main():
     tester = fiirRestTester
-    tester.createUser(phone="16083207727",invitedBy = 3, email = "123@gmail.com")
+    #tester.createUser(phone="16083207727",invitedBy = 3, email = "123@gmail.com")
     #tester.createPic(key="secret",tag1="travel",user_id=1,price=12,token="YUJN58HJI8UJ5R")
     #tester.updatePhone(key="secret",user_id=3,phone="1234567890")
     #tester.updateEmail(user_id = 1, email = "newemail@gmail.com")
     #tester.addFriend(user_id=1,friend_id=3)
-    #tester.removeFriend(user_id=1,friend_id=3)
+    tester.removeFriend(key="DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS",user_id=1,friend_id=5)
     #tester.listFriends(key="DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS",user_id=1)
     #listPictures(key="123",user_id=1)
     #tester.uploadPicture()
-
+    #tester.updatePromo(user_id = 1,key="DX0SRYUYZQ4ZQXYSRNWOGZZCPCMIWQS", promoCode = "ZMK")
 
 if __name__ == '__main__':
     main()

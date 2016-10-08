@@ -200,6 +200,7 @@ class MyServer(BaseHTTPRequestHandler):
         try:
             postContent = json.loads(postVars.decode('utf-8'))
         except BaseException as e:
+            print("error parsing json object")
             self.json_header(400)
             self.wfile.write(bytes('{"status":"errors parsing json object:%s"}'%(str(e),), "utf-8"))
             return
@@ -241,10 +242,40 @@ class MyServer(BaseHTTPRequestHandler):
             self.updateEmail(postContent)
         elif requestList[1]=='settings' and requestList[2]=='update_phone':
             self.updatePhone(postContent)
-            
+        elif requestList[1]=='users' and requestList[2]=='setPromo':
+            self.setPromocode(postContent)
+
         else:
             self.json_header(400)
             self.wfile.write(bytes('{"error":"illegal operation"}', "utf-8"))
+    
+    def setPromocode(self,postContent):
+
+
+        #json format validation
+        if 'user' in postContent and 'promoCode' in postContent:
+            user = postContent['user']
+            promoCode = postContent['promoCode']
+
+        else:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"errors parsing json object"}', "utf-8"))
+            return
+
+        #update database
+        conf = Config()     #load configuration
+        connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
+        curMy = connMy.cursor()
+        query = "UPDATE USER SET promo_code=%s WHERE id=%s;"
+        curMy.execute(query,(promoCode,user));
+        connMy.commit();
+        connMy.close()
+        #send success response
+        self.json_header()
+        self.wfile.write(bytes('{"status":"promoCode successfully updated"}', "utf-8"))
+
+
+
     def updateEmail(self,postContent):
 
 
@@ -405,6 +436,32 @@ class MyServer(BaseHTTPRequestHandler):
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
         curMy = connMy.cursor()
+
+        query = 'SELECT COUNT(*) FROM USER WHERE id = %s'
+        curMy.execute(query,(user,));
+        nameCount = curMy.fetchone()[0]
+        if nameCount==0:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"err","msg":"user %s does not exist"}' %(user,), "utf-8"))
+            return
+        query = 'SELECT COUNT(*) FROM USER WHERE id = %s'
+        curMy.execute(query,(friend,));
+        nameCount = curMy.fetchone()[0]
+        if nameCount==0:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"err","msg":"friend_id %s does not exist"}' %(friend,), "utf-8"))
+            return
+        query = 'SELECT COUNT(*) FROM FRIENDS WHERE user_id = %s AND friend_id = %s'
+        curMy.execute(query,(user,friend));
+        nameCount = curMy.fetchone()[0]
+        if nameCount==0:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"err","msg":"%s and %s are not friend yet"}' %(user,friend), "utf-8"))
+            return
+
+
+
+
         query = "DELETE FROM FRIENDS WHERE user_id = %s AND friend_id=%s;"
         curMy.execute(query,(user,friend));
         query = "DELETE FROM FRIENDS WHERE user_id = %s AND friend_id=%s;"
@@ -414,7 +471,8 @@ class MyServer(BaseHTTPRequestHandler):
 
         #send success response
         self.json_header()
-        self.wfile.write(bytes('{"status":"friend successfully removed"}', "utf-8"))
+        # -1 server error, 0 user error
+        self.wfile.write(bytes('{"status":"ok","msg":"firend %s successfully removed"}' %(friend,), "utf-8"))
 
 
     def createUser(self,postContent):
