@@ -32,18 +32,23 @@ Promo code is known as `token` in the following
 | Endpoint                    | Type | Parameters                                                      | Done? | Port |
 | ----------------------      | ---- | --------------------------------------------------------------- | ----- | ---- |
 | /users/create               | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | yes   | 9096 |
-| /users/setPromo             | POST | {key:"key", user:"userid", promoCode:"code"}                    | no    | 9096 |
+| /users/setPromo             | POST | {key:"key", user:"userid", promoCode:"code"}                    | yes   | 9096 |
 | /pics/create                | POST | {key:"key", user:"userid", price:"price", token:"code/null"}    | yes   | 9096 |
 | /pics/created               | GET  | {key:"key", user:"userid"}                                      | yes   | 9096 |
-| /pics/flag                  | POST | {key:"key", user:"userid", picId:"picture ID"}                  | no    | 9096 |
-| /pics/hide                  | POST | {key:"key", user:"userid", picId:"picture ID"}                  | no    | 9096 |
+| /pics/flag                  | POST | {key:"key", user:"userid", picId:"picture ID"}                  | yes   | 9096 |
+| /pics/hide                  | POST | {key:"key", user:"userid", picId:"picture ID"}                  | yes   | 9096 |
 | /friends/list               | GET  | {key:"key", user:"userid"}                                      | yes   | 9096 |
-| /friends/add:               | POST | {key:"key", user:"userid", friend:"userid"}                     | yes   | 9096 |
+| /friends/add                | POST | {key:"key", user:"userid", friend:"userid"}                     | yes   | 9096 |
 | /friends/remove             | POST | {key:"key", user:"userid", friend:"userid"}                     | yes   | 9096 |
 | /settings/update_email      | POST | {key:"key", user:"userid", email:"emailaddress"}                | yes   | 9096 |
 | /settings/update_phone      | POST | {key:"key", user:"userid", phone:"phonenumber"}                 | yes   | 9096 |
+| /newest/pics                | GET  | {}                                                              | yes   | 9096 |
+
+
+
 
 ## Starting & Stopping Back-end Server
+
 
 to start the server, go to ./python and run:
 
@@ -57,6 +62,59 @@ to stop the server:
 ```
 killall python3
 ```
+
+## API details
+
+### creating new user
+
+end-point: http://fiirapp.ddns.net:9096/pics/hide
+header: {'Content-Type': 'application/json'}
+query sample: '{"phone":"(608)320-7727", "invitedby": 1, "email":"zarickzheng@gmail.com"}'
+
+
+### hiding picture
+
+end-point: http://fiirapp.ddns.net:9096/pics/hide
+header: {'Content-Type': 'application/json'}
+query sample: '{"key":"DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS", "user": 1, "picId":"18"}'
+
+
+example response(200):
+{"status":"success","msg":"picture 18 successfully hided"}
+
+example response(400 user not exist):
+{"status":"error","msg":"invalid user id"}
+
+example response(400 invalid key):
+{"status":"error","msg":"invalid key"}
+
+example response(400 invalid picture id)
+{"status":"error","msg":"this picture is not owned by 1"}
+
+
+
+
+### flagging picture
+
+end-point: http://fiirapp.ddns.net:9096/pics/flag
+header: {'Content-Type': 'application/json'}
+query sample: '{"key":"DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS", "user": 1, "picId":"18"}'
+
+
+example response(200):
+{"status":"success","msg":"picture 18 successfully flagged"}
+
+example response(400 user not exist):
+{"status":"error","msg":"invalid user id"}
+
+example response(400 invalid key):
+{"status":"error","msg":"invalid key"}
+
+example response(400 invalid picture id)
+{"status":"error","msg":"this picture is not owned by 1"}
+
+
+
 
 ## Number verification
 We will be using API of numverify.con to determine carriers for any given number. We will then use the email to SMS gateway to send messages to the correct carrier:

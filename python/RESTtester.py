@@ -81,19 +81,27 @@ class fiirRestTester:
 
     def listFriends(key="123",user_id=1):
         print("list friends")
-        r = requests.get("http://fiirapp.ddns.net:9096/friends/list?key=%s&user=%s"%(key,user_id))
+        headers = {'key': key,'user':user_id }
+        r = requests.get("http://fiirapp.ddns.net:9096/friends/list", headers = headers)
+        print(str(r))
+        print(str(r.text))
+
+    def listNewPics():
+        print("list newest pictures")
+        r = requests.get("http://fiirapp.ddns.net:9096/newest/pics")
         print(str(r))
         print(str(r.text))
 
     def listPictures(key="123",user_id=1):
-        print("list friends")
-        r = requests.get("http://fiirapp.ddns.net:9096/pics/created?key=%s&user=%s"%(key,user_id))
+        print("list pictures")
+        headers = {'key': key,'user':user_id }
+        r = requests.get("http://fiirapp.ddns.net:9096/pics/created%s&user=%s"%(key,user_id))
         print(str(r))
         print(str(r.text))
 
-    def uploadPicture():
+    def uploadPicture(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS'):
         print("upload picture")
-        files = {"user":"5","key":"123",'fileToUpload': open('/home/app/test.png', 'rb')}
+        files = {"user":user,"key":key,'fileToUpload': open('/home/app/test.png', 'rb')}
         r = requests.post("http://fiirapp.ddns.net:9096/pics/create",files=files)
         print(str(r))
         print(str(r.text))
@@ -105,7 +113,21 @@ class fiirRestTester:
         print(str(r))
         print(str(r.text))
 
+    def flagPic(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS',picId = '18'):
+        print("flag picture")
+        headers = {'Content-Type': 'application/json'}
+        quest = '{"key":"%s", "user":%s, "picId":"%s"}'%(key,user,picId)
+        r = requests.post("http://fiirapp.ddns.net:9096/pics/flag", data=quest, headers=headers)
+        print(str(r))
+        print(str(r.text))
 
+    def hidePic(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS',picId = '18'):
+        print("hide picture")
+        headers = {'Content-Type': 'application/json'}
+        quest = '{"key":"%s", "user":%s, "picId":"%s"}'%(key,user,picId)
+        r = requests.post("http://fiirapp.ddns.net:9096/pics/hide", data=quest, headers=headers)
+        print(str(r))
+        print(str(r.text))
 def main():
     tester = fiirRestTester
     #tester.createUser(phone="16083207727",invitedBy = 3, email = "123@gmail.com")
@@ -113,11 +135,15 @@ def main():
     #tester.updatePhone(key="secret",user_id=3,phone="1234567890")
     #tester.updateEmail(user_id = 1, email = "newemail@gmail.com")
     #tester.addFriend(user_id=1,friend_id=3)
-    tester.removeFriend(key="DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS",user_id=1,friend_id=5)
+    #tester.removeFriend(key="DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS",user_id=1,friend_id=5)
     #tester.listFriends(key="DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS",user_id=1)
     #listPictures(key="123",user_id=1)
     #tester.uploadPicture()
+    #tester.listNewPics()
     #tester.updatePromo(user_id = 1,key="DX0SRYUYZQ4ZQXYSRNWOGZZCPCMIWQS", promoCode = "ZMK")
+    #tester.flagPic(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS',picId = '18')
+    tester.hidePic(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS',picId = '17')
+
 
 if __name__ == '__main__':
     main()

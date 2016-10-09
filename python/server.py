@@ -40,31 +40,69 @@ class MyServer(BaseHTTPRequestHandler):
 
 
     def do_GET(self):
+        print(self.headers)
 
         requestPath = urlparse(self.path).path
         requestList = requestPath.split('/')
         if len(requestList)!=3 or requestList[0]!= '':
             self.json_header(400)
             self.wfile.write(bytes('{"error":"invalid request format"}', "utf-8"))
-
+            return
         query = urlparse(self.path).query
         queryList = dict(parse_qsl(query))
         #print(str(queryList))
+
 
         #routing
         if requestList[1]=='pics' and requestList[2]=='created':
             self.listPics(queryList)
         elif requestList[1]=='friends' and requestList[2]=='list':
             self.listFriends(queryList)
+        elif requestList[1]=='newest' and requestList[2]=='pics':
+            self.listNewPics()
+
+
         else:
             self.json_header(400)
             self.wfile.write(bytes('{"error":"illegal GET request"}', "utf-8"))
+
+
+    def listNewPics(self):
+
+
+        conf = Config()     #load configuration
+        connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
+        curMy = connMy.cursor()
+        query = "SELECT price,date_added,id FROM PICS  ORDER BY `date_added` DESC LIMIT 5;"
+        curMy.execute(query);
+        result = curMy.fetchall()
+        connMy.close()
+
+
+        pictures = "["
+        for row in result:
+            price = row[0]
+            date_added = row[1]
+            pid = row[2]
+            pictures +='{"id":%s,"price":%s,"date_added":"%s"}'%(pid,price,date_added)
+        pictures +="]"
+
+        #send back picture list
+        self.json_header()
+        self.wfile.write(bytes('{"status":"success","num_pic":%s,"pictures":%s}'%(len(result),pictures), "utf-8"))
+
+
+
+
     def listPics(self,queryList):
         #query format validation
-        if 'key' in queryList and 'user' in queryList:
-            key = queryList['key']
-            user = queryList['user']
-        else:
+        key = self.headers.get("key")
+        user = self.headers.get("user")
+
+        #if 'key' in queryList and 'user' in queryList:
+        #    key = queryList['key']
+        #    user = queryList['user']
+        if key is None or user is None:
             self.json_header(400)
             self.wfile.write(bytes('{"status":"errors parsing GET query"}', "utf-8"))
             return
@@ -126,11 +164,14 @@ class MyServer(BaseHTTPRequestHandler):
 
 
     def listFriends(self,queryList):
+        key = self.headers.get("key")
+        user = self.headers.get("user")
+
         #query format validation
-        if 'key' in queryList and 'user' in queryList:
-            key = queryList['key']
-            user = queryList['user']
-        else:
+        #if 'key' in queryList and 'user' in queryList:
+        #    key = queryList['key']
+        #    user = queryList['user']
+        if key is None or user is None:
             self.json_header(400)
             self.wfile.write(bytes('{"status":"errors parsing GET query"}', "utf-8"))
             return
@@ -180,8 +221,8 @@ class MyServer(BaseHTTPRequestHandler):
         print('*' * 60)
         sys.stdout.flush()
         if self.headers.get_content_maintype()=="multipart":
-            #self.deal_post_display()
-            self.createPic()
+            self.deal_post_display()
+            #self.createPic()
             return
 
 
@@ -244,10 +285,73 @@ class MyServer(BaseHTTPRequestHandler):
             self.updatePhone(postContent)
         elif requestList[1]=='users' and requestList[2]=='setPromo':
             self.setPromocode(postContent)
-
+        elif requestList[1]=='pics' and requestList[2]=='flag':
+            self.updatePic(postContent,flagged=True)
+        elif requestList[1]=='pics' and requestList[2]=='hide':
+            self.updatePic(postContent,hided=True)
         else:
             self.json_header(400)
             self.wfile.write(bytes('{"error":"illegal operation"}', "utf-8"))
+
+    def updatePic(self,postContent,flagged=False,hided = False):
+
+        #json format validation
+        if 'user' in postContent and 'picId' in postContent:
+            user = postContent['user']
+            picId = postContent['picId']
+
+        else:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"errors parsing json object"}', "utf-8"))
+            return
+
+        #update database
+        conf = Config()     #load configuration
+        connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
+        curMy = connMy.cursor()
+
+        query = "SELECT COUNT(*) FROM PICS WHERE id = %s;"
+        curMy.execute(query,(picId,))
+        picExisted = curMy.fetchone()[0]
+        if picExisted==0:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"the picture %s does not exist"}'%(picId,), "utf-8"))
+            return
+
+
+
+        query = "SELECT user_id FROM PICS WHERE id = %s;"
+        curMy.execute(query,(picId,))
+        picOwner = curMy.fetchone()[0]
+        if picOwner != user:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"this picture is not owned by %s"}'%(user,), "utf-8"))
+            return
+
+        if flagged == True:
+            query = "UPDATE PICS SET flagged=1 WHERE id=%s;"
+            curMy.execute(query,(picId,));
+            connMy.commit();
+            connMy.close()
+            #send success response
+            self.json_header()
+            self.wfile.write(bytes('{"status":"success","msg":"picture %s successfully flagged"}' %(picId,), "utf-8"))
+
+        if hided == True:
+            query = "UPDATE PICS SET hided=1 WHERE id=%s;"
+            curMy.execute(query,(picId,));
+            connMy.commit();
+            connMy.close()
+            #send success response
+            self.json_header()
+            self.wfile.write(bytes('{"status":"success","msg":"picture %s successfully hided"}' %(picId,), "utf-8"))
+
+
+
+
+
+
+
     
     def setPromocode(self,postContent):
 
@@ -334,15 +438,21 @@ class MyServer(BaseHTTPRequestHandler):
 
 
     def createPic(self):
-        multiparser = multipart.MultipartParser(self.rfile,self.headers.get_boundary(),content_length=int(self.headers['content-length']))
+        try:
+            multiparser = multipart.MultipartParser(self.rfile,self.headers.get_boundary(),content_length=int(self.headers['content-length']))
+        except BaseException as e:
+            print("multipart parsing error: "+ str(e))
+            return
         key = multiparser.get("key")
         user_id = multiparser.get("user")
-        if user_id is None:
+        #print("multipart key:"+str(key.value))
+        #print("multipart user:"+str(user_id.value))
+        if user_id is None or key is None:
             self.json_header(400)
             self.wfile.write(bytes('{"msg":"invalid key field"}', "utf-8"))
             return
 
-        auth_result = self.authenticate(user,key)
+        auth_result = self.authenticate(user_id.value,key.value)
         if auth_result == -1:
             self.json_header(400)
             self.wfile.write(bytes('{"status":"error","msg":"invalid key"}', "utf-8"))
