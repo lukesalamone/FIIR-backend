@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
     ScrollView scrollView;
 
     private GestureDetectorCompat detector;
-
+    private ApiRequest apiRequest;
     private static final int ACTION_TAKE_PHOTO_B = 1;
     private static final int ACTION_TAKE_PHOTO_S = 2;
     private static final int ACTION_TAKE_VIDEO = 3;
@@ -56,6 +56,7 @@ public class MainActivity extends Activity {
     final int PERMISSION_GRANTED = PackageManager.PERMISSION_GRANTED;
     final int REQUEST_CAMERA_PERMISSION = 1;
     final int REQUEST_WRITE_PERMISSION = 2;
+    final int REQUEST_INTERNET_PERMISSION = 3;
     int[] permissionResults;    // results from permission requests
     int state;
     int FIIR_Red;
@@ -66,7 +67,8 @@ public class MainActivity extends Activity {
         FIIR_Red = Color.parseColor("#820000");
         tabs = new ArrayList<>();
         photoPath = "";
-        permissionResults = new int[]{0, 0};
+        permissionResults = new int[]{0, 0, 0};
+        apiRequest = new ApiRequest("http://fiirapp.ddns.net:9096");
     }
 
     @Override
@@ -92,7 +94,7 @@ public class MainActivity extends Activity {
         tab1.setOnClickListener(this::tabOne);
         tab2.setOnClickListener(this::tabTwo);
         tab3.setOnClickListener(this::tabThree);
-        cameraButton.setOnClickListener(this::openCamera);
+        cameraButton.setOnClickListener(this::onCameraButtonPress);
 
         for (Button b : tabs) {
             b.setTypeface(Typeface.createFromAsset(getAssets(), "hn.ttf"));
@@ -105,7 +107,8 @@ public class MainActivity extends Activity {
     // TODO request camera and storage permissions
     private void onCameraButtonPress(View view) {
         if(ContextCompat.checkSelfPermission(this,CAMERA) == PERMISSION_GRANTED
-           && ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED){
+            && ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED
+            && ContextCompat.checkSelfPermission(this, INTERNET) == PERMISSION_GRANTED){
             openCamera(view);
         } else {
             if(ContextCompat.checkSelfPermission(this,CAMERA)!=PERMISSION_GRANTED){
@@ -121,10 +124,17 @@ public class MainActivity extends Activity {
                         new String[]{permission.WRITE_EXTERNAL_STORAGE},
                         REQUEST_WRITE_PERMISSION);
             }
+
+            if(ContextCompat.checkSelfPermission(this,INTERNET) != PERMISSION_GRANTED){
+                Log.i(DEBUG, "requesting internet permission");
+                ActivityCompat.requestPermissions(this,
+                        new String[]{permission.INTERNET},
+                        REQUEST_INTERNET_PERMISSION);
+            }
         }
     }
 
-    // open camera then send picture to ApproveActivity
+    //
     private void openCamera(View view) {
         Log.i(DEBUG, "opening camera");
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -149,6 +159,15 @@ public class MainActivity extends Activity {
                 Log.i("tag", "got photo uri");
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 Log.e(DEBUG, "starting camera for pic result");
+
+                if(ContextCompat.checkSelfPermission(this,Manifest.permission.INTERNET) ==
+                        PackageManager.PERMISSION_GRANTED){
+                    Log.i("INTERNET", "has internet permission");
+                } else {
+                    Log.i("INTERNET", "does not have internet permission");
+                }
+
+
                 startActivityForResult(takePictureIntent, 1);
             }
         } else {
@@ -160,7 +179,7 @@ public class MainActivity extends Activity {
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = timeStamp + "_" + PhotoFileHelper.getRandomFileName();
+        String imageFileName = timeStamp + "_" + PhotoFileHelper.getRandomString(10);
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
@@ -223,14 +242,23 @@ public class MainActivity extends Activity {
                 if(results.length > 0 && results[0] == PERMISSION_GRANTED){
                     // permission granted
                     permissionResults[1] = 1;
-
-                    // we have both permissions
-                    if(permissionResults[0] == 1){
-
-                    }
                 } else {
                     // permission denied
                     permissionResults[1] = -1;
+                }
+                break;
+            case REQUEST_INTERNET_PERMISSION:
+                if(results.length > 0 && results[0] == PERMISSION_GRANTED){
+                    // permission granted
+                    permissionResults[2] = 1;
+
+                    // we have all permissions
+                    if(permissionResults[0] == 1 && permissionResults[1] == 1){
+                        openCamera(scrollView);
+                    }
+                } else {
+                    // permission denied
+                    permissionResults[0] = -1;
                 }
                 break;
         }

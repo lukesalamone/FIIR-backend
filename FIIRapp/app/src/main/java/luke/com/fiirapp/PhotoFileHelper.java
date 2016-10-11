@@ -86,11 +86,11 @@ public class PhotoFileHelper {
     }
 */
 
-    public static String getRandomFileName(){
+    public static String getRandomString(int size){
         String s="";
         String characters = "abcdefghijklmnopqrstuvwxyz0123456789";
         int length = characters.length();
-        for(int i=0; i<10; i++){
+        for(int i=0; i<size; i++){
             s += characters.charAt((int)(Math.random()*length));
         }
         return s;
@@ -98,8 +98,10 @@ public class PhotoFileHelper {
 
     public static void publishPhoto(String filepath){
         Log.i("publishPhoto", "publishing photo at " + filepath);
-        ApiRequest request = new ApiRequest("fiirapp.ddns.net:9096");
+        ApiRequest request = new ApiRequest("http://fiirapp.ddns.net:9096");
         request.setCredentials("DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS","1");
         request.pics_create(filepath, "0", "");
+        String response = request.getResponse();
+        Log.i("api response", response);
     }
 }

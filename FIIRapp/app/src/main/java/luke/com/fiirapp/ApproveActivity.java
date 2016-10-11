@@ -17,7 +17,7 @@ public class ApproveActivity extends Activity {
     ApiRequest request;
 
     public ApproveActivity(){
-        this.request = new ApiRequest("fiirapp.ddns.net");
+        this.request = new ApiRequest("http://fiirapp.ddns.net:9096");
     }
 
     @Override
