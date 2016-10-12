@@ -1,15 +1,14 @@
-<<<<<<< HEAD
 # FIIR
 All files of or related to F.I.I.R.
 
 ##Installing
 Make sure you have git installed:
 
-```sudo apt-get install git```
+`sudo apt-get install git`
 
 Clone the project:
 
-```git clone git@github.com:lukesalamone/FIIR.git```
+`git clone git@github.com:lukesalamone/FIIR.git`
 
 [Make sure you have Android Studio installed](http://developer.android.com/sdk/installing/index.html)
 
@@ -44,24 +43,19 @@ Promo code is known as `token` in the following
 | /settings/update_phone      | POST | {key:"key", user:"userid", phone:"phonenumber"}                 | yes   | 9096 |
 | /newest/pics                | GET  | {}                                                              | yes   | 9096 |
 
-
-
+### /users/create
+Responds with {key:String, userid:String, code:Integer}
 
 ## Starting & Stopping Back-end Server
 
 
 to start the server, go to ./python and run:
 
-```
-nohup ./server.py >> ../../server.py.out &
-
-```
+`nohup ./server.py >> ../../server.py.out &`
 
 to stop the server:
 
-```
-killall python3
-```
+`killall python3`
 
 ## API details
 
@@ -127,5 +121,4 @@ Sprint PCS (now Sprint Nextel) 	`1234567890@messaging.sprintpcs.com`
 T-Mobile 	`1234567890@tmomail.net`  
 US Cellular 	`1234567890email.uscc.net`   
 Verizon 	`1234567890@vtext.com`  
-Virgin Mobile USA 	`1234567890@vmobl.com`  
->>>>>>> 14c51891f6ace5c82ce82155ac084cd0a33a2818
+Virgin Mobile USA 	`1234567890@vmobl.com`
