@@ -73,7 +73,7 @@ class MyServer(BaseHTTPRequestHandler):
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
         curMy = connMy.cursor()
-        query = "SELECT price,date_added,id FROM PICS  ORDER BY `date_added` DESC LIMIT 5;"
+        query = "SELECT price,date_added,id FROM PICS  ORDER BY `date_added` DESC LIMIT 20;"
         curMy.execute(query);
         result = curMy.fetchall()
         connMy.close()
@@ -221,8 +221,8 @@ class MyServer(BaseHTTPRequestHandler):
         print('*' * 60)
         sys.stdout.flush()
         if self.headers.get_content_maintype()=="multipart":
-            self.deal_post_display()
-            #self.createPic()
+            #self.deal_post_display()
+            self.createPic()
             return
 
 
@@ -449,16 +449,19 @@ class MyServer(BaseHTTPRequestHandler):
         #print("multipart user:"+str(user_id.value))
         if user_id is None or key is None:
             self.json_header(400)
+            print("userid or key not well-formatted")
             self.wfile.write(bytes('{"msg":"invalid key field"}', "utf-8"))
             return
 
         auth_result = self.authenticate(user_id.value,key.value)
         if auth_result == -1:
             self.json_header(400)
+            print("auth invalid key")
             self.wfile.write(bytes('{"status":"error","msg":"invalid key"}', "utf-8"))
             return
         elif auth_result == -2:
             self.json_header(400)
+            print("invalid user id")
             self.wfile.write(bytes('{"status":"error","msg":"invalid user id"}', "utf-8"))
             return
 
@@ -467,11 +470,12 @@ class MyServer(BaseHTTPRequestHandler):
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
         curMy = connMy.cursor()
-
-
-        uploadedFile = multiparser.get("fileToUpload")
+        for part in multiparser:
+            print(part.name)
+        uploadedFile = multiparser.get("uploadedfile")
         if uploadedFile is None:
             self.json_header(400)
+            print("invalid uploaded image")
             self.wfile.write(bytes('{"msg":"invalid uploaded image"}', "utf-8"))
             return
         fileExt = os.path.splitext(uploadedFile.filename)[1]
@@ -488,7 +492,7 @@ class MyServer(BaseHTTPRequestHandler):
 
 
 
-        uploadedFile.save_as("/var/www/fiir/img/"+randomStr+fileExt)
+        uploadedFile.save_as("/var/www/html/pics/"+randomStr+fileExt)
         #r, info = self.deal_post_data()
         #print( "%s,%s,%s,%s"%(r, info, "by: ", self.client_address))
 

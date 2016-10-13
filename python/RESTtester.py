@@ -101,7 +101,7 @@ class fiirRestTester:
 
     def uploadPicture(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS'):
         print("upload picture")
-        files = {"user":user,"key":key,'fileToUpload': open('/home/app/test.png', 'rb')}
+        files = {"user":user,"key":key,'uploadedfile': open('/home/app/test.png', 'rb')}
         r = requests.post("http://fiirapp.ddns.net:9096/pics/create",files=files)
         print(str(r))
         print(str(r.text))
@@ -139,10 +139,10 @@ def main():
     #tester.listFriends(key="DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS",user_id=1)
     #listPictures(key="123",user_id=1)
     #tester.uploadPicture()
-    #tester.listNewPics()
+    tester.listNewPics()
     #tester.updatePromo(user_id = 1,key="DX0SRYUYZQ4ZQXYSRNWOGZZCPCMIWQS", promoCode = "ZMK")
     #tester.flagPic(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS',picId = '18')
-    tester.hidePic(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS',picId = '17')
+    #tester.hidePic(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS',picId = '17')
 
 
 if __name__ == '__main__':
