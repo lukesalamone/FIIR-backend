@@ -250,6 +250,7 @@ public class ApiRequest {
             ArrayList<String> response = new ArrayList<>();
             try {
                 String filepath = (String)params.remove("file");
+                String filename = filepath.substring(filepath.lastIndexOf('/') + 1);
                 Log.i("filepath", filepath);
                 Log.i("url", url.toString());
                 FileInputStream fileInputStream = new FileInputStream(new File(filepath));
@@ -270,7 +271,7 @@ public class ApiRequest {
                 //BufferedOutputStream os = new BufferedOutputStream(conn.getOutputStream());
                 os.write((twoHyphens + boundary + lineEnd).getBytes("UTF-8"));
                 os.write(("Content-Disposition: form-data; " +
-                        "name=\"uploadedfile\";filename=\"" + filepath + "\"" + lineEnd).getBytes("UTF-8"));
+                        "name=\"uploadedfile\";filename=\"" + filename + "\"" + lineEnd).getBytes("UTF-8"));
                 os.write("Content-Type: image/jpeg\r\n".getBytes("UTF-8"));
                 os.write(lineEnd.getBytes("UTF-8"));
 
@@ -383,7 +384,4 @@ public class ApiRequest {
             return response;
         }
     }// end PostRequest subclass
-
-
-
 }// end class ApiRequest

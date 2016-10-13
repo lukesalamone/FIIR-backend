@@ -199,8 +199,19 @@ public class MainActivity extends Activity {
             //setPic();
             galleryAddPic();
 
-            // try to publish to server
-            PhotoFileHelper.publishPhoto(photoPath);
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            try {
+                File tempFile = File.createTempFile(
+                        "temp",  /* prefix */
+                        ".jpg",         /* suffix */
+                        storageDir      /* directory */
+                );
+
+                // try to publish to server
+                PhotoFileHelper.publishPhoto(photoPath, tempFile.getAbsolutePath());
+            } catch(IOException e){
+                e.printStackTrace();
+            }
 
             photoPath = null;
         }
