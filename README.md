@@ -27,22 +27,22 @@ Database and API endpoints for FIIR app
 ## REST API Endpoints
 
 Promo code is known as `token` in the following
-                        
+
 | Endpoint                                      | Type | Parameters-example                                              | Done? | Port |
 | ----------------------                        | ---- | --------------------------------------------------------------- | ----- | ---- |
-| [/users/create](#/users/create)               | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | yes   | 9096 |
-| [/users/verify](#/users/verify)                   | POST | {"user":1, "verification":"896154"}                             | yes   | 9096 |
-| /users/setPromo             | POST | {key:"key", user:"userid", promoCode:"code"}                    | yes   | 9096 |
-| /pics/create                | POST | {key:"key", user:"userid", price:"price", token:"code/null"}    | yes   | 9096 |
-| /pics/created               | GET  | {key:"key", user:"userid"}                                      | yes   | 9096 |
-| /pics/flag                  | POST | {key:"key", user:"userid", picId:"picture ID"}                  | yes   | 9096 |
-| /pics/hide                  | POST | {key:"key", user:"userid", picId:"picture ID"}                  | yes   | 9096 |
-| /friends/list               | GET  | {key:"key", user:"userid"}                                      | yes   | 9096 |
-| /friends/add                | POST | {key:"key", user:"userid", friend:"userid"}                     | yes   | 9096 |
-| /friends/remove             | POST | {key:"key", user:"userid", friend:"userid"}                     | yes   | 9096 |
-| /settings/update_email      | POST | {key:"key", user:"userid", email:"emailaddress"}                | yes   | 9096 |
-| /settings/update_phone      | POST | {key:"key", user:"userid", phone:"phonenumber"}                 | yes   | 9096 |
-| /newest/pics                | GET  | {}                                                              | yes   | 9096 |
+| [/users/create](#userscreate)               | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | yes   | 9096 |
+| [/users/verify](#usersverify)                   | POST | {"user":1, "verification":"896154"}                             | yes   | 9096 |
+| [/users/setPromo](#userssetPromo)             | POST | {key:"key", user:"userid", promoCode:"code"}                    | yes   | 9096 |
+| [/pics/create](#picscreate)                | POST | {key:"key", user:"userid", price:"price", token:"code/null"}    | yes   | 9096 |
+| [/pics/created](#picscreated)               | GET  | {key:"key", user:"userid"}                                      | yes   | 9096 |
+| [/pics/flag](#picsflag)              | POST | {key:"key", user:"userid", picId:"picture ID"}                  | yes   | 9096 |
+| [/pics/hide](#picshide)              | POST | {key:"key", user:"userid", picId:"picture ID"}                  | yes   | 9096 |
+| [/friends/list](#friendslist)           | GET  | {key:"key", user:"userid"}                                      | yes   | 9096 |
+| [/friends/add](#friendsadd)            | POST | {key:"key", user:"userid", friend:"userid"}                     | yes   | 9096 |
+| [/friends/remove](#friendsremove)         | POST | {key:"key", user:"userid", friend:"userid"}                     | yes   | 9096 |
+| [/settings/update_email](#settingsupdate_email)  | POST | {key:"key", user:"userid", email:"emailaddress"}                | yes   | 9096 |
+| [/settings/update_phone](#settingsupdate_phone)  | POST | {key:"key", user:"userid", phone:"phonenumber"}                 | yes   | 9096 |
+| [/newest/pics](#newestpics)            | GET  | {}                                                              | yes   | 9096 |
 
 
 ## Starting & Stopping Back-end Server
@@ -71,13 +71,11 @@ example response(200):
 
 {"status":"success","num_pic":10,"pictures":[{"id":20,"price":-1,"date_added":"2016-10-12 20:09:52"}{"id":19,"price":-1,"date_added":"2016-10-12 19:31:27"}{"id":18,"price":-1,"date_added":"2016-10-08 11:51:17"}{"id":17,"price":-1,"date_added":"2016-09-25 23:11:45"}{"id":16,"price":-1,"date_added":"2016-09-25 23:11:28"}{"id":15,"price":-1,"date_added":"2016-09-25 23:10:24"}{"id":14,"price":-1,"date_added":"2016-09-25 23:06:16"}{"id":13,"price":-1,"date_added":"2016-09-25 22:59:11"}{"id":12,"price":-1,"date_added":"2016-09-25 22:55:46"}{"id":11,"price":-1,"date_added":"2016-09-25 22:31:00"}]}
 
-
-
 ### /users/verify
 
 request type: POST
 
-end-point: http://fiirapp.ddns.net:9096/pics/hide
+end-point: http://fiirapp.ddns.net:9096/users/verify
 
 header: {'Content-Type': 'application/json'}
 
@@ -87,12 +85,19 @@ example response(200):
 
 {"status":"user successfully verified","auth_token":"03X4I8HYJK6X71ASI2712U2ZM7SHMUB9"}
 
+example response(400 user verified already)
+
+{"status":"error","msg":"user not verifiable"}
+
+example response(400 invalid activation code):
+
+{"status":"error","msg":"wrong activation code"}
 
 ### /users/create
 
 request type: POST
 
-end-point: http://fiirapp.ddns.net:9096/pics/hide
+end-point: http://fiirapp.ddns.net:9096/users/create
 
 header: {'Content-Type': 'application/json'}
 
@@ -101,9 +106,6 @@ query sample: '{"phone":"(608)320-7727", "invitedby": 1, "email":"zarickzheng@gm
 example response(200):
 
 {"status":"user successfully created","user_id":"20"}
-
-
-
 
 ### /pics/hide
 
