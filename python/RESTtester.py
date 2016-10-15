@@ -26,6 +26,13 @@ class fiirRestTester:
         r = requests.post("http://fiirapp.ddns.net:9096/users/create", data=quest, headers=headers)
         print(str(r))
         print(str(r.text))
+    def verifyUser(user_id = 10, verification = '893021'):
+        print("verify user")
+        headers = {'Content-Type': 'application/json'}
+        quest = '{"user":%s, "verification":"%s"}' %(user_id,verification)
+        r = requests.post("http://fiirapp.ddns.net:9096/users/verify", data=quest, headers=headers)
+        print(str(r))
+        print(str(r.text))
 
 
     def createPic(key="secret",tag1="travel",user_id=1,price=12,token="YUJN58HJI8UJ5R"):
@@ -128,9 +135,21 @@ class fiirRestTester:
         r = requests.post("http://fiirapp.ddns.net:9096/pics/hide", data=quest, headers=headers)
         print(str(r))
         print(str(r.text))
+    def likePic(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS',picId = '18'):
+        print("like picture")
+        headers = {'Content-Type': 'application/json'}
+        quest = '{"key":"%s", "user":%s, "picId":"%s"}'%(key,user,picId)
+        r = requests.post("http://fiirapp.ddns.net:9096/pics/like", data=quest, headers=headers)
+        print(str(r))
+        print(str(r.text))
+
+
+
+
 def main():
     tester = fiirRestTester
-    #tester.createUser(phone="16083207727",invitedBy = 3, email = "123@gmail.com")
+    #tester.createUser(phone="16083207727",invitedBy = 1, email = "123@gmail.com")
+    tester.verifyUser(user_id = 20, verification = '343435')
     #tester.createPic(key="secret",tag1="travel",user_id=1,price=12,token="YUJN58HJI8UJ5R")
     #tester.updatePhone(key="secret",user_id=3,phone="1234567890")
     #tester.updateEmail(user_id = 1, email = "newemail@gmail.com")
@@ -139,10 +158,11 @@ def main():
     #tester.listFriends(key="DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS",user_id=1)
     #listPictures(key="123",user_id=1)
     #tester.uploadPicture()
-    tester.listNewPics()
+    #tester.listNewPics()
     #tester.updatePromo(user_id = 1,key="DX0SRYUYZQ4ZQXYSRNWOGZZCPCMIWQS", promoCode = "ZMK")
     #tester.flagPic(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS',picId = '18')
     #tester.hidePic(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS',picId = '17')
+    #tester.likePic(user='1',key='DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS',picId = '17')
 
 
 if __name__ == '__main__':

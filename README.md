@@ -28,9 +28,10 @@ Database and API endpoints for FIIR app
 
 Promo code is known as `token` in the following
                         
-| Endpoint                    | Type | Parameters                                                      | Done? | Port |
-| ----------------------      | ---- | --------------------------------------------------------------- | ----- | ---- |
-| /users/create               | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | yes   | 9096 |
+| Endpoint                                      | Type | Parameters-example                                              | Done? | Port |
+| ----------------------                        | ---- | --------------------------------------------------------------- | ----- | ---- |
+| [/users/create](#/users/create)               | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | yes   | 9096 |
+| [/users/verify](#/users/verify)                   | POST | {"user":1, "verification":"896154"}                             | yes   | 9096 |
 | /users/setPromo             | POST | {key:"key", user:"userid", promoCode:"code"}                    | yes   | 9096 |
 | /pics/create                | POST | {key:"key", user:"userid", price:"price", token:"code/null"}    | yes   | 9096 |
 | /pics/created               | GET  | {key:"key", user:"userid"}                                      | yes   | 9096 |
@@ -43,8 +44,6 @@ Promo code is known as `token` in the following
 | /settings/update_phone      | POST | {key:"key", user:"userid", phone:"phonenumber"}                 | yes   | 9096 |
 | /newest/pics                | GET  | {}                                                              | yes   | 9096 |
 
-### /users/create
-Responds with {key:String, userid:String, code:Integer}
 
 ## Starting & Stopping Back-end Server
 
@@ -60,7 +59,7 @@ to stop the server:
 ## API details
 
 
-### listing newest pictures
+### /newest/pics
 
 request type: GET
 
@@ -74,10 +73,22 @@ example response(200):
 
 
 
+### /users/verify
+
+request type: POST
+
+end-point: http://fiirapp.ddns.net:9096/pics/hide
+
+header: {'Content-Type': 'application/json'}
+
+query sample: '{"user": 10, "verification":"859278"}'
+
+example response(200):
+
+{"status":"user successfully verified","auth_token":"03X4I8HYJK6X71ASI2712U2ZM7SHMUB9"}
 
 
-
-### creating new user
+### /users/create
 
 request type: POST
 
@@ -87,8 +98,14 @@ header: {'Content-Type': 'application/json'}
 
 query sample: '{"phone":"(608)320-7727", "invitedby": 1, "email":"zarickzheng@gmail.com"}'
 
+example response(200):
 
-### hiding picture
+{"status":"user successfully created","user_id":"20"}
+
+
+
+
+### /pics/hide
 
 request type: POST
 
@@ -118,7 +135,7 @@ example response(400 invalid picture id)
 
 
 
-### flagging picture
+### /pics/flag
 
 request type: POST
 

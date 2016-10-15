@@ -26,6 +26,13 @@ import multipart
 import random
 import string
 import requests
+import smtplib
+
+
+
+upload_debug_mode = 0
+# upload_debug_mode = 1 displaying picture binary content
+# upload_debug_mode = 0 normal uploading mode
 
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
@@ -154,6 +161,8 @@ class MyServer(BaseHTTPRequestHandler):
         connMy.close()
         if credentials is None:
             return -2
+        if credentials[0] == '' or credentials[0] is None or credentials[1] == '' or credentials[1] is None:
+            return -3
         auth_token = credentials[0]
         salt = credentials[1]
         hashedKey = str(hashlib.sha256((key+salt).encode()).hexdigest())
@@ -221,8 +230,12 @@ class MyServer(BaseHTTPRequestHandler):
         print('*' * 60)
         sys.stdout.flush()
         if self.headers.get_content_maintype()=="multipart":
-            #self.deal_post_display()
-            self.createPic()
+
+            if upload_debug_mode == 1:
+
+                self.deal_post_display()
+            else:
+                self.createPic()
             return
 
 
@@ -247,11 +260,13 @@ class MyServer(BaseHTTPRequestHandler):
             return
 
 
-        #routing user creation
+        #routing: user creation
         if requestList[1]=='users' and requestList[2]=='create':
             self.createUser(postContent)
             return
-
+        if requestList[1]=='users' and requestList[2]=='verify':
+            self.verifyUser(postContent)
+            return
 
         #json format validation
         if 'key' in postContent and 'user' in postContent:
@@ -272,9 +287,13 @@ class MyServer(BaseHTTPRequestHandler):
             self.json_header(400)
             self.wfile.write(bytes('{"status":"error","msg":"invalid user id"}', "utf-8"))
             return
+        elif auth_result == -3:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"user not verified"}', "utf-8"))
+            return
 
 
-        #routing
+        #routing: operations that should be authenticated beforehand
         if requestList[1]=='friends' and requestList[2]=='add':
             self.addFriend(postContent)
         elif requestList[1]=='friends' and requestList[2]=='remove':
@@ -289,11 +308,13 @@ class MyServer(BaseHTTPRequestHandler):
             self.updatePic(postContent,flagged=True)
         elif requestList[1]=='pics' and requestList[2]=='hide':
             self.updatePic(postContent,hided=True)
+        elif requestList[1]=='pics' and requestList[2]=='like':
+            self.updatePic(postContent,liked=True)
         else:
             self.json_header(400)
             self.wfile.write(bytes('{"error":"illegal operation"}', "utf-8"))
 
-    def updatePic(self,postContent,flagged=False,hided = False):
+    def updatePic(self,postContent,flagged=False,hided = False,liked = False):
 
         #json format validation
         if 'user' in postContent and 'picId' in postContent:
@@ -319,14 +340,14 @@ class MyServer(BaseHTTPRequestHandler):
             return
 
 
-
-        query = "SELECT user_id FROM PICS WHERE id = %s;"
-        curMy.execute(query,(picId,))
-        picOwner = curMy.fetchone()[0]
-        if picOwner != user:
-            self.json_header(400)
-            self.wfile.write(bytes('{"status":"error","msg":"this picture is not owned by %s"}'%(user,), "utf-8"))
-            return
+        if liked == False:
+            query = "SELECT user_id FROM PICS WHERE id = %s;"
+            curMy.execute(query,(picId,))
+            picOwner = curMy.fetchone()[0]
+            if picOwner != user:
+                self.json_header(400)
+                self.wfile.write(bytes('{"status":"error","msg":"this picture is not owned by %s"}'%(user,), "utf-8"))
+                return
 
         if flagged == True:
             query = "UPDATE PICS SET flagged=1 WHERE id=%s;"
@@ -346,7 +367,24 @@ class MyServer(BaseHTTPRequestHandler):
             self.json_header()
             self.wfile.write(bytes('{"status":"success","msg":"picture %s successfully hided"}' %(picId,), "utf-8"))
 
+        if liked == True:
 
+            query = "SELECT COUNT(*) FROM LIKED WHERE pic_id = %s AND user_id = %s;"
+            curMy.execute(query,(picId,user))
+            likeExisted = curMy.fetchone()[0]
+            if likeExisted!=0:
+                self.json_header(400)
+                self.wfile.write(bytes('{"status":"error","msg":"the picture %s is already liked by user %s"}'%(picId,user), "utf-8"))
+                return
+
+
+            query = "INSERT INTO LIKED (user_id, pic_id) VALUES (%s,%s);"
+            curMy.execute(query,(user,picId));
+            connMy.commit();
+            connMy.close()
+            #send success response
+            self.json_header()
+            self.wfile.write(bytes('{"status":"success","msg":"picture %s successfully liked"}' %(picId,), "utf-8"))
 
 
 
@@ -598,19 +636,19 @@ class MyServer(BaseHTTPRequestHandler):
             email = postContent['email']
         else:
             self.json_header(400)
-            self.wfile.write(bytes('{"status":"errors parsing json object"}', "utf-8"))
+            self.wfile.write(bytes('{"status":"error","msg":"incomplete sign up request"}', "utf-8"))
             return
 
-
-        salt = randomStr = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
-        password = randomStr = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
-        hashedKey = str(hashlib.sha256((password+salt).encode()).hexdigest())
-        #update database
+        if len(phoneNumber)>10:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"bad phone number"}', "utf-8"))
+            return
+        
         conf = Config()     #load configuration
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8') 
         curMy = connMy.cursor()
-        query = "INSERT INTO USER (phone_number,invited_by,email_address,auth_token,salt) VALUES (%s,%s,%s,%s,%s);"
-        curMy.execute(query,(phoneNumber,invitedBy,email,hashedKey,salt));
+        query = "INSERT INTO USER (phone_number,invited_by,email_address,salt) VALUES (%s,%s,%s,'');"
+        curMy.execute(query,(phoneNumber,invitedBy,email));
         connMy.commit();
 
         query ="SELECT LAST_INSERT_ID();"
@@ -628,9 +666,84 @@ class MyServer(BaseHTTPRequestHandler):
 
 
         if telInfo is not None and 'line_type' in telInfo and 'carrier' in telInfo and 'location' in telInfo:
+
+
+
             query = "UPDATE USER SET tel_carrier = %s, tel_location = %s, tel_line_type = %s WHERE id = %s;"
             curMy.execute(query,(telInfo['carrier'],telInfo['location'],telInfo['line_type'],user_id));
             connMy.commit();
+        
+        if telInfo is not None and 'carrier' in telInfo:
+
+            activationCode = ''.join(random.SystemRandom().choice(string.digits) for _ in range(6))
+
+            res = self.sendToNumber(phoneNumber,telInfo['carrier'],activationCode)
+            if res == -1:
+                self.json_header(400)
+                self.wfile.write(bytes('{"status":"error","msg":"unrecognized carrier"}', "utf-8"))
+                return
+
+
+            query = "UPDATE USER SET activation_code = %s WHERE id = %s;"
+            curMy.execute(query,(activationCode,user_id));
+            connMy.commit();
+        else:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"phone number invalid, no carrier detected"}', "utf-8"))
+            return
+
+
+        connMy.close()
+
+        #send success response
+        self.json_header()
+        self.wfile.write(bytes('{"status":"user successfully created","user_id":"%s"}'%(user_id,), "utf-8"))
+
+    def verifyUser(self, postContent):
+
+
+
+        #json format validation
+        if 'user' in postContent and 'verification' in postContent:
+            verification = postContent['verification']
+            user = postContent['user']
+        else:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"incomplete verify request"}', "utf-8"))
+            return
+
+
+
+        conf = Config()     #load configuration
+        connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8') 
+        curMy = connMy.cursor()
+
+
+        query = 'SELECT activation_code FROM USER WHERE id = %s '
+        curMy.execute(query,(user,));
+        activation_code = curMy.fetchone()[0]
+
+        if activation_code is None or activation_code =='':
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"user not verifiable"}', "utf-8"))
+            return
+
+        if activation_code != verification:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"wrong activation code"}', "utf-8"))
+            return
+
+
+
+        salt = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(64))
+        password =  ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(32))
+        hashedKey = str(hashlib.sha256((password+salt).encode()).hexdigest())
+
+
+        query = "UPDATE USER SET auth_token = %s ,salt = %s, activation_code='' WHERE id =%s;"
+        curMy.execute(query,(hashedKey,salt,user));
+        connMy.commit();
+
 
 
 
@@ -640,7 +753,7 @@ class MyServer(BaseHTTPRequestHandler):
 
         #send success response
         self.json_header()
-        self.wfile.write(bytes('{"status":"user successfully created","auth_token":"%s","user_id":"%s"}'%(password,user_id), "utf-8"))
+        self.wfile.write(bytes('{"status":"user successfully verified","auth_token":"%s"}'%(password,), "utf-8"))
 
 
     def deal_post_display(self):
@@ -651,9 +764,29 @@ class MyServer(BaseHTTPRequestHandler):
             print(line)
         return (True,"success")
 
+    def sendToNumber(self,phoneNumber,carrier,msgToSend):
+        if carrier == 'AT&T Mobility LLC':
+            toaddrs = phoneNumber + '@txt.att.net'
+        elif carrier =='Sprint Corp.':
+            toaddrs = phoneNumber + '@messaging.sprintpcs.com'
+        else:
+            print("unrecognized carrier:"+carrier)
+            return -1
+        print("send to number:"+phoneNumber)
+        fromaddr = 'fiirappmain@gmail.com'
+        msg =  str(msgToSend)
+        print(msg)
+        server = smtplib.SMTP("smtp.gmail.com:587")
 
+        server.starttls()
 
+        server.login("fiirappmain","1234qwerZ")
 
+        server.sendmail(fromaddr, toaddrs, msg)
+
+        # Send the message via our own SMTP server.
+        server.quit()
+        return 0
 
 def main():
 
