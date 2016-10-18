@@ -1,6 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@mipmap/bg"
+    android:id="@+id/signup_bg">
 
-</LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Verify"
+        android:id="@+id/title"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#fff"
+        android:textSize="50dp"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentTop="false"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:id="@+id/divider0"
+        android:layout_below="@+id/title"
+        android:background="#fff"
+        android:layout_marginTop="-10dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="phone"
+        android:id="@+id/code"
+        android:layout_below="@+id/divider0"
+        android:layout_marginTop="100dp"
+        android:layout_alignLeft="@+id/divider"
+        android:layout_alignStart="@+id/divider"
+        android:layout_alignEnd="@+id/divider0"
+        android:layout_alignRight="@+id/divider0"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:background="#fff"
+        android:id="@+id/divider"
+        android:layout_below="@+id/code"
+        android:layout_height="1dp"
+        android:text="sample"
+        android:textSize="0sp"
+        android:layout_marginLeft="70dp"
+        android:layout_marginRight="70dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="verification code"
+        android:ems="10"
+        android:textColor="#fff"
+        android:textAllCaps="true"
+        android:layout_below="@+id/code"
+        android:layout_alignLeft="@+id/divider" />
+
+    <Button
+        android:text="let's gooooooo!!!"
+        android:textColor="#fff"
+        android:background="#bb000000"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:layout_alignLeft="@+id/divider"
+        android:layout_alignRight="@+id/divider"
+        android:id="@+id/button"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="30dp" />
+
+</RelativeLayout>

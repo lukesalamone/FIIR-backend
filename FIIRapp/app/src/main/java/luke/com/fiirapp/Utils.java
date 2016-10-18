@@ -12,12 +12,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import android.graphics.BitmapFactory;
 
 /**
  * Created by luke on 10/5/16.
  *
- * Helper class to execute filesystem operations
+ * Contains helper methods for stuff
  */
 
 public class Utils {
@@ -69,6 +72,17 @@ public class Utils {
 
         file.delete();
         return temp;
+    }
+
+    public static boolean validPhone(String phone){
+        phone = phone.replace("-", "").replace("(", "").replace(")", "");
+        return phone.length() == 9;
+    }
+
+    public static boolean validEmail(String email){
+        Pattern pattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.find();
     }
 
 }

@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
     Button tab2;
     Button tab3;
     RelativeLayout cameraButton;
+    RelativeLayout logoutButton;
     ArrayList<Button> tabs;
     TextView infoText;
     TextView buttonText;
@@ -76,10 +77,13 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.i("onCreate", "started main activity");
+
         tab1 = (Button) findViewById(R.id.tab1);
         tab2 = (Button) findViewById(R.id.tab2);
         tab3 = (Button) findViewById(R.id.tab3);
         cameraButton = (RelativeLayout) findViewById(R.id.button);
+        //logoutButton = (RelativeLayout) findViewById(R.id.logout);
 
         tabs.add(tab1);
         tabs.add(tab2);
@@ -95,6 +99,7 @@ public class MainActivity extends Activity {
         tab2.setOnClickListener(this::tabTwo);
         tab3.setOnClickListener(this::tabThree);
         cameraButton.setOnClickListener(this::onCameraButtonPress);
+        //logoutButton.setOnClickListener(this::onLogoutButtonPress);
 
         for (Button b : tabs) {
             b.setTypeface(Typeface.createFromAsset(getAssets(), "hn.ttf"));
@@ -103,8 +108,6 @@ public class MainActivity extends Activity {
         detector = new GestureDetectorCompat(this, new gestureListener());
     }
 
-
-    // TODO request camera and storage permissions
     private void onCameraButtonPress(View view) {
         if(ContextCompat.checkSelfPermission(this,CAMERA) == PERMISSION_GRANTED
             && ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) == PERMISSION_GRANTED
@@ -134,7 +137,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    //
     private void openCamera(View view) {
         Log.i(DEBUG, "opening camera");
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -179,7 +181,7 @@ public class MainActivity extends Activity {
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = timeStamp + "_" + PhotoFileHelper.getRandomString(10);
+        String imageFileName = timeStamp + "_" + Utils.getRandomString(10);
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
                 imageFileName,  /* prefix */
@@ -208,7 +210,7 @@ public class MainActivity extends Activity {
                 );
 
                 // try to publish to server
-                PhotoFileHelper.publishPhoto(photoPath, tempFile.getAbsolutePath());
+                Utils.publishPhoto(photoPath, tempFile.getAbsolutePath());
             } catch(IOException e){
                 e.printStackTrace();
             }
@@ -301,6 +303,11 @@ public class MainActivity extends Activity {
         tabs.get(state).setTextColor(FIIR_Red);
 
         infoText.setText("$1k stream");
+    }
+    void onLogoutButtonPress(View view){    // TODO
+        // erase key and userid from shared preferences
+
+        // switch to login activity
     }
     void openSettings(){
         Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);

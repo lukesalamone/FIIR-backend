@@ -40,13 +40,13 @@ public class SettingsActivity extends Activity {
     }
 
     void openGallery(){
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         if(android.os.Build.VERSION.SDK_INT >= 21) {
-            settingsBG.getContext().startActivity(intent,
+            startActivity(intent,
                     ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
             overridePendingTransition(R.anim.gallery_slide_in, android.R.anim.fade_out);
         }else{
-            settingsBG.getContext().startActivity(intent);
+            startActivity(intent);
         }
     }
 

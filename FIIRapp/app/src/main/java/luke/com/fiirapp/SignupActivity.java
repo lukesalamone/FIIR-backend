@@ -3,6 +3,7 @@ package luke.com.fiirapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,7 +30,7 @@ public class SignupActivity extends Activity {
     TextView inviteLabel;
 
     private String key;
-    private String userid;
+    private int userid;
 
     private ApiRequest post;
 
@@ -41,6 +42,8 @@ public class SignupActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
+
+        Log.i("onCreate", "started signup activity");
 
         button = (Button) findViewById(R.id.button);
         phoneInput = (EditText) findViewById(R.id.phone_input);
@@ -64,13 +67,13 @@ public class SignupActivity extends Activity {
         email = emailInput.getText().toString();
         invitedby = inviteInput.getText().toString();
 
-        if(!validPhone(phone)){
+        if(!Utils.validPhone(phone)){
             showError("phone");
             valid = false;
         } else {
             resetMessage("phone");
         }
-        if(!validEmail(email)){
+        if(!Utils.validEmail(email)){
             showError("email");
             valid = false;
         } else {
@@ -89,31 +92,24 @@ public class SignupActivity extends Activity {
                 post.users_create(phone, invitedby, email);
                 String response = post.getResponse();
                 JSONObject json = new JSONObject(response);
-                key = json.getString("key");
-                userid = json.getString("userid");
-                int verificationCode = json.getInt("code");
+                userid = json.getInt("userid");
 
-                // save key and userid to local storage
-
-                // send verificationCode to VerifyActivity
+                // send userid to VerifyActivity
                 Intent intent = new Intent(view.getContext(), VerifyActivity.class);
-                intent.putExtra("key_screen_name", verificationCode);
+                intent.putExtra("userid", userid);
+
+                startActivity(intent);
+
+                if(android.os.Build.VERSION.SDK_INT >= 21) {
+                    overridePendingTransition(R.anim.slide_in_right, android.R.anim.fade_out);
+                }
             }catch(JSONException e){
                 // do nothing
             }
         }
     }
 
-    private boolean validPhone(String phone){
-        phone = phone.replace("-", "").replace("(", "").replace(")", "");
-        return phone.length() == 9;
-    }
 
-    private boolean validEmail(String email){
-        Pattern pattern = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(email);
-        return matcher.find();
-    }
 
     // TODO use api request
     private boolean validInvite(String invite){

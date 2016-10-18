@@ -65,6 +65,40 @@ public class ApiRequest {
         }
         response = Arrays.toString(post.execute("/users/create", params));
     }
+    public void users_create(String phone, String invitedby, String email, String carrier){
+        JSONObject params = new JSONObject();
+        try {
+            params.put("phone", phone);
+            params.put("invitedby", new Integer(invitedby));
+            params.put("email", email);
+            params.put("carrier", carrier);
+        } catch (JSONException e){
+            e.printStackTrace();
+            response = "JSON exception";
+        }
+        response = Arrays.toString(post.execute("/users/create", params));
+    }
+    public void users_login(String phone){
+        try{
+            JSONObject params = new JSONObject();
+            params.put("phone", phone);
+            response = Arrays.toString(post.execute("/users/login", params));
+        } catch(JSONException e){
+            e.printStackTrace();
+            response = "JSON exception";
+        }
+    }
+    public void users_verify(int userid, String code){
+        try {
+            JSONObject params = new JSONObject();
+            params.put("userid", new Integer(userid));
+            params.put("code", new Integer(code));
+            response = Arrays.toString(post.execute("/users/verify", params));
+        } catch(JSONException e){
+            e.printStackTrace();
+            response = "JSON exception";
+        }
+    }
     public void users_setPromo(String promoCode){
         JSONObject params = new JSONObject();
         try {
@@ -246,7 +280,7 @@ public class ApiRequest {
             int bytesRead, bytesAvailable, bufferSize;
             byte[] buffer;
             int maxBufferSize = 1*1024*1024;
-            String boundary = PhotoFileHelper.getRandomString(15);
+            String boundary = Utils.getRandomString(15);
             ArrayList<String> response = new ArrayList<>();
             try {
                 String filepath = (String)params.remove("file");

@@ -10,14 +10,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Signup"
+        android:text="Register"
         android:id="@+id/signup_title"
         android:layout_gravity="center_horizontal"
         android:textColor="#fff"
         android:textSize="50dp"
         android:layout_alignParentLeft="false"
         android:layout_alignParentTop="false"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:textAllCaps="true" />
 
     <TextView
         android:layout_width="fill_parent"
@@ -133,17 +134,12 @@
         android:layout_alignLeft="@+id/divider" />
 
     <Button
-        android:text="GUCCI"
-        android:textColor="#fff"
-        android:background="#bb000000"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
-        android:layout_alignLeft="@+id/divider3"
-        android:layout_alignRight="@+id/divider3"
+        android:text="GUCCI"
         android:id="@+id/button"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="30dp" />
+        android:layout_marginBottom="30dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>
