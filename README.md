@@ -64,9 +64,9 @@ This endpoint may also errorback to request for phone carrier:
 Request type: POST  
 Endpoint: http://fiirapp.ddns.net:9096/users/create  
 Header: {'Content-Type': 'application/json'}
-Query sample: `{"phone":"(608)867-5309", "invitedby":-1, "email":"buckybadger@wisc.edu", "carrier":"att"}`
-example response (200):
-`{"status":"ok", "msg":"user successfully created","user_id":"30"}`
+Query sample: `{"phone":"(608)867-5309", "invitedby":-1, "email":"buckybadger@wisc.edu", "carrier":"att"}`  
+example response (200):  
+`{"status":"ok", "msg":"user successfully created","user_id":"30"}`  
 
 Carriers will be sent as the following abbreviations:
 
@@ -97,74 +97,65 @@ example response(400 invalid activation code):
 
 {"status":"error","msg":"wrong activation code"}
 
+
+### /users/setPromo
+
+#### Example request (POST)
+`{"key":"QWERTYUIOPLKJHGFDSAQWER123456789", "user":1, "promo":"deeznuts"}`
+
+#### Example response  
+`{"status":"ok", "msg":"updated with token deeznuts"}`  
+Server may also errorback:  
+`{"status":"err", "msg":"token not found"}`  
+
 ### /newest/pics
 
-request type: GET
+request type: GET  
+end-point: http://fiirapp.ddns.net:9096/newest/pics  
+header: `{'Content-Type': 'application/json'}`
 
-end-point: http://fiirapp.ddns.net:9096/newest/pics
+#### Example response(200):
 
-header: {'Content-Type': 'application/json'}
-
-example response(200):
-
-{"status":"success","num_pic":10,"pictures":[{"id":20,"price":-1,"date_added":"2016-10-12 20:09:52"}{"id":19,"price":-1,"date_added":"2016-10-12 19:31:27"}{"id":18,"price":-1,"date_added":"2016-10-08 11:51:17"}{"id":17,"price":-1,"date_added":"2016-09-25 23:11:45"}{"id":16,"price":-1,"date_added":"2016-09-25 23:11:28"}{"id":15,"price":-1,"date_added":"2016-09-25 23:10:24"}{"id":14,"price":-1,"date_added":"2016-09-25 23:06:16"}{"id":13,"price":-1,"date_added":"2016-09-25 22:59:11"}{"id":12,"price":-1,"date_added":"2016-09-25 22:55:46"}{"id":11,"price":-1,"date_added":"2016-09-25 22:31:00"}]}
+`{"status":"success","num_pic":10,"pictures":[{"id":20,"price":-1,"date_added":"2016-10-12 20:09:52"}{"id":19,"price":-1,"date_added":"2016-10-12 19:31:27"}{"id":18,"price":-1,"date_added":"2016-10-08 11:51:17"}{"id":17,"price":-1,"date_added":"2016-09-25 23:11:45"}{"id":16,"price":-1,"date_added":"2016-09-25 23:11:28"}{"id":15,"price":-1,"date_added":"2016-09-25 23:10:24"}{"id":14,"price":-1,"date_added":"2016-09-25 23:06:16"}{"id":13,"price":-1,"date_added":"2016-09-25 22:59:11"}{"id":12,"price":-1,"date_added":"2016-09-25 22:55:46"}{"id":11,"price":-1,"date_added":"2016-09-25 22:31:00"}]}`
 
 ### /pics/hide
 
-request type: POST
+request type: POST  
+end-point: http://fiirapp.ddns.net:9096/pics/hide  
+header: `{'Content-Type': 'application/json'}`  
+query sample: `{"key":"DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS", "user": 1, "picId":"18"}`
 
-end-point: http://fiirapp.ddns.net:9096/pics/hide
+#### Example response(200):  
+`{"status":"success","msg":"picture 18 successfully hidden"}`
 
-header: {'Content-Type': 'application/json'}
+example response(400 user not exist):  
+`{"status":"error","msg":"invalid user id"}`  
 
-query sample: '{"key":"DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS", "user": 1, "picId":"18"}'
+example response(400 invalid key):  
+`{"status":"error","msg":"invalid key"}`
 
-
-example response(200):
-
-{"status":"success","msg":"picture 18 successfully hided"}
-
-example response(400 user not exist):
-
-{"status":"error","msg":"invalid user id"}
-
-example response(400 invalid key):
-
-{"status":"error","msg":"invalid key"}
-
-example response(400 invalid picture id)
-
-{"status":"error","msg":"this picture is not owned by 1"}
-
-
+example response(400 invalid picture id)  
+`{"status":"error","msg":"this picture is not owned by 1"}`
 
 
 ### /pics/flag
 
-request type: POST
+request type: POST  
+end-point: http://fiirapp.ddns.net:9096/pics/flag  
+header: {'Content-Type': 'application/json'}  
+query sample: `{"key":"DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS", "user": 1, "picId":"18"}`  
 
-end-point: http://fiirapp.ddns.net:9096/pics/flag
+#### Example response(200):  
+`{"status":"success","msg":"picture 18 successfully flagged"}`  
 
-header: {'Content-Type': 'application/json'}
-
-query sample: '{"key":"DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS", "user": 1, "picId":"18"}'
-
-
-example response(200):
-
-{"status":"success","msg":"picture 18 successfully flagged"}
-
-example response(400 user not exist):
-
+#### Example response(400 user not exist):  
 {"status":"error","msg":"invalid user id"}
 
-example response(400 invalid key):
+#### Example response(400 invalid key):
+`{"status":"error","msg":"invalid key"}`
 
-{"status":"error","msg":"invalid key"}
-
-example response(400 invalid picture id)
-
-{"status":"error","msg":"this picture is not owned by 1"}
+#### Example response(400 invalid picture id):
+`{"status":"error","msg":"this picture is not owned by 1"}`
 
 
 ## Starting & Stopping Back-end Server
