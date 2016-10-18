@@ -31,6 +31,7 @@ Promo code is known as `token` in the following
 | Endpoint                                      | Type | Parameters-example                                              | Done? | Port |
 | ----------------------                        | ---- | --------------------------------------------------------------- | ----- | ---- |
 | [/users/create](#userscreate)               | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | yes   | 9096 |
+| [/users/create](#userscreateoverloaded)               | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress", "carrier":"carrier"} | no   | 9096 |
 | [/users/verify](#usersverify)                   | POST | {"user":1, "verification":"896154"}                             | yes   | 9096 |
 | [/users/setPromo](#userssetPromo)             | POST | {key:"key", user:"userid", promoCode:"code"}                    | yes   | 9096 |
 | [/pics/create](#picscreate)                | POST | {key:"key", user:"userid", price:"price", token:"code/null"}    | yes   | 9096 |
@@ -44,20 +45,57 @@ Promo code is known as `token` in the following
 | [/settings/update_phone](#settingsupdate_phone)  | POST | {key:"key", user:"userid", phone:"phonenumber"}                 | yes   | 9096 |
 | [/newest/pics](#newestpics)            | GET  | {}                                                              | yes   | 9096 |
 
-
-## Starting & Stopping Back-end Server
-
-
-to start the server, go to ./python and run:
-
-`nohup ./server.py >> ../../server.py.out &`
-
-to stop the server:
-
-`killall python3`
-
 ## API details
 
+### /users/create
+
+Request type: POST  
+Endpoint: http://fiirapp.ddns.net:9096/users/create  
+Header: {'Content-Type': 'application/json'}  
+query sample: `{"phone":"(608)320-7727", "invitedby": 1, "email":"zarickzheng@gmail.com"}`  
+example response(200):
+`{"status":"ok", "msg":"user successfully created","user_id":"20"}`
+
+This endpoint may also errorback to request for phone carrier:  
+`{"status":"err", msg:"carrier not found"}`
+
+### /users/create (overloaded)
+
+Request type: POST  
+Endpoint: http://fiirapp.ddns.net:9096/users/create  
+Header: {'Content-Type': 'application/json'}
+Query sample: `{"phone":"(608)867-5309", "invitedby":-1, "email":"buckybadger@wisc.edu", "carrier":"att"}`
+example response (200):
+`{"status":"ok", "msg":"user successfully created","user_id":"30"}`
+
+Carriers will be sent as the following abbreviations:
+
+| Company | Abbreviation |
+| ------- | ------------ |
+| Alltel | alltel |
+| AT&T | att |
+| Boost Mobile | boost |
+| Sprint | sprint |
+| T-Mobile | tmobile |
+| US Cellular | uscellular |
+| Verizon | verizon |
+| Virgin Mobile | virgin |
+
+
+### /users/verify
+
+Request type: POST  
+Endpoint: http://fiirapp.ddns.net:9096/users/verify  
+Header: {'Content-Type': 'application/json'}  
+query sample: `{"user": 10, "verification":"859278"}`  
+example response(200):  
+`{"status":"user successfully verified","auth_token":"03X4I8HYJK6X71ASI2712U2ZM7SHMUB9"}`
+example response(400 user verified already)  
+`{status:"error", msg:"user not verifiable"}`
+
+example response(400 invalid activation code):
+
+{"status":"error","msg":"wrong activation code"}
 
 ### /newest/pics
 
@@ -70,42 +108,6 @@ header: {'Content-Type': 'application/json'}
 example response(200):
 
 {"status":"success","num_pic":10,"pictures":[{"id":20,"price":-1,"date_added":"2016-10-12 20:09:52"}{"id":19,"price":-1,"date_added":"2016-10-12 19:31:27"}{"id":18,"price":-1,"date_added":"2016-10-08 11:51:17"}{"id":17,"price":-1,"date_added":"2016-09-25 23:11:45"}{"id":16,"price":-1,"date_added":"2016-09-25 23:11:28"}{"id":15,"price":-1,"date_added":"2016-09-25 23:10:24"}{"id":14,"price":-1,"date_added":"2016-09-25 23:06:16"}{"id":13,"price":-1,"date_added":"2016-09-25 22:59:11"}{"id":12,"price":-1,"date_added":"2016-09-25 22:55:46"}{"id":11,"price":-1,"date_added":"2016-09-25 22:31:00"}]}
-
-### /users/verify
-
-request type: POST
-
-end-point: http://fiirapp.ddns.net:9096/users/verify
-
-header: {'Content-Type': 'application/json'}
-
-query sample: '{"user": 10, "verification":"859278"}'
-
-example response(200):
-
-{"status":"user successfully verified","auth_token":"03X4I8HYJK6X71ASI2712U2ZM7SHMUB9"}
-
-example response(400 user verified already)
-
-{"status":"error","msg":"user not verifiable"}
-
-example response(400 invalid activation code):
-
-{"status":"error","msg":"wrong activation code"}
-
-### /users/create
-
-request type: POST
-
-end-point: http://fiirapp.ddns.net:9096/users/create
-
-header: {'Content-Type': 'application/json'}
-
-query sample: '{"phone":"(608)320-7727", "invitedby": 1, "email":"zarickzheng@gmail.com"}'
-
-example response(200):
-
-{"status":"user successfully created","user_id":"20"}
 
 ### /pics/hide
 
@@ -165,6 +167,15 @@ example response(400 invalid picture id)
 {"status":"error","msg":"this picture is not owned by 1"}
 
 
+## Starting & Stopping Back-end Server
+
+to start the server, go to ./python and run:
+
+`nohup ./server.py >> ../../server.py.out &`
+
+to stop the server:
+
+`killall python3`
 
 
 ## Number verification
