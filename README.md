@@ -31,7 +31,7 @@ Promo code is known as `token` in the following
 | Endpoint                                      | Type | Parameters-example                                              | Done? | Port |
 | ----------------------                        | ---- | --------------------------------------------------------------- | ----- | ---- |
 | [/users/create](#userscreate)               | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress"} | yes   | 9096 |
-| [/users/create](#userscreateoverloaded)               | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress", "carrier":"carrier"} | no   | 9096 |
+| [/users/create](#userscreate-overloaded)               | POST | {phone:"phonenumber", invitedby:"userid", email:"emailaddress", "carrier":"carrier"} | no   | 9096 |
 | [/users/verify](#usersverify)                   | POST | {"user":1, "verification":"896154"}                             | yes   | 9096 |
 | [/users/setPromo](#userssetPromo)             | POST | {key:"key", user:"userid", promoCode:"code"}                    | yes   | 9096 |
 | [/pics/create](#picscreate)                | POST | {key:"key", user:"userid", price:"price", token:"code/null"}    | yes   | 9096 |
