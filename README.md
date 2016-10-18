@@ -88,14 +88,15 @@ Request type: POST
 Endpoint: http://fiirapp.ddns.net:9096/users/verify  
 Header: {'Content-Type': 'application/json'}  
 query sample: `{"user": 10, "verification":"859278"}`  
-example response(200):  
-`{"status":"user successfully verified","auth_token":"03X4I8HYJK6X71ASI2712U2ZM7SHMUB9"}`
-example response(400 user verified already)  
+
+#### Example response(200):  
+`{"status":"user successfully verified","auth_token":"03X4I8HYJK6X71ASI2712U2ZM7SHMUB9"}`  
+
+#### Example response(400 user verified already)  
 `{status:"error", msg:"user not verifiable"}`
 
-example response(400 invalid activation code):
-
-{"status":"error","msg":"wrong activation code"}
+#### Example response(400 invalid activation code):
+`{"status":"error","msg":"wrong activation code"}`
 
 
 ### /users/setPromo
