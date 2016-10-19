@@ -24,6 +24,23 @@ Demo of simple POST requests to server.
 # FIIR-backend
 Database and API endpoints for FIIR app
 
+## Starting & Stopping Back-end Server
+
+
+to start the server in debug mode(messages will be printed out to std), go to ./python and run:
+`./server.py`
+to start the server in production mode(messages will be logged in ../../server.py.out), go to ./python and run:
+`nohup ./server.py >> ../../server.py.out &`
+to check if server is running, type:
+`ps -fC python3`
+and if it shows an entry ending with 'python3 ./server.py', it means server is running(it will also show the PID of server)
+
+to stop the server, type:
+
+`kill XXX`
+where XXX is the PID of server
+
+
 ## REST API Endpoints
 
 Promo code is known as `token` in the following
@@ -157,17 +174,6 @@ query sample: `{"key":"DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS", "user": 1, "picId":"18
 
 #### Example response(400 invalid picture id):
 `{"status":"error","msg":"this picture is not owned by 1"}`
-
-
-## Starting & Stopping Back-end Server
-
-to start the server, go to ./python and run:
-
-`nohup ./server.py >> ../../server.py.out &`
-
-to stop the server:
-
-`killall python3`
 
 
 ## Number verification
