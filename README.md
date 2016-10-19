@@ -36,7 +36,6 @@ to check if server is running, type:
 and if it shows an entry ending with 'python3 ./server.py', it means server is running(it will also show the PID of server)
 
 to stop the server, type:
-
 `kill XXX`
 where XXX is the PID of server
 
