@@ -19,10 +19,13 @@ import email.utils
 
 class fiirRestTester:
 
-    def createUser(phone="1234567890",invitedBy = 2, email = "123@gmail.com"):
+    def createUser(phone="1234567890",invitedBy = 2, email = "123@gmail.com", carrier = None):
         print("create user")
         headers = {'Content-Type': 'application/json'}
-        quest = '{"phone":"%s", "invitedby":%s, "email":"%s"}' %(phone,invitedBy,email)
+        if carrier is None:
+            quest = '{"phone":"%s", "invitedby":%s, "email":"%s"}' %(phone,invitedBy,email)
+        else:
+            quest = '{"phone":"%s", "invitedby":%s, "email":"%s", "carrier":"%s"}' %(phone,invitedBy,email,carrier)
         r = requests.post("http://fiirapp.ddns.net:9096/users/create", data=quest, headers=headers)
         print(str(r))
         print(str(r.text))
@@ -148,8 +151,8 @@ class fiirRestTester:
 
 def main():
     tester = fiirRestTester
-    #tester.createUser(phone="16083207727",invitedBy = 1, email = "123@gmail.com")
-    tester.verifyUser(user_id = 20, verification = '343435')
+    tester.createUser(phone="16083207727",invitedBy = 1, email = "123@gmail.com",carrier = "verizon")
+    #tester.verifyUser(user_id = 20, verification = '343435')
     #tester.createPic(key="secret",tag1="travel",user_id=1,price=12,token="YUJN58HJI8UJ5R")
     #tester.updatePhone(key="secret",user_id=3,phone="1234567890")
     #tester.updateEmail(user_id = 1, email = "newemail@gmail.com")

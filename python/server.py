@@ -31,6 +31,8 @@ import smtplib
 
 
 upload_debug_mode = 0
+print_debug_mode = 1
+# print_debug_mode = 1 all functions print out errors
 # upload_debug_mode = 1 displaying picture binary content
 # upload_debug_mode = 0 normal uploading mode
 
@@ -39,6 +41,9 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle multiple thread"""
 
 class MyServer(BaseHTTPRequestHandler):
+    def debugout(self, msg):
+        if print_debug_mode == 1:
+            print(msg)
     def json_header(self,status_code=200):
         self.send_response(status_code)
         self.send_header("Content-type", "application/json")
@@ -47,7 +52,7 @@ class MyServer(BaseHTTPRequestHandler):
 
 
     def do_GET(self):
-        print(self.headers)
+        self.debugout(self.headers)
 
         requestPath = urlparse(self.path).path
         requestList = requestPath.split('/')
@@ -226,8 +231,8 @@ class MyServer(BaseHTTPRequestHandler):
 
 
     def do_POST(self):
-        print(self.headers)
-        print('*' * 60)
+        self.debugout(self.headers)
+        self.debugout('*' * 60)
         sys.stdout.flush()
         if self.headers.get_content_maintype()=="multipart":
 
@@ -250,11 +255,11 @@ class MyServer(BaseHTTPRequestHandler):
         varLen = int(self.headers['Content-Length'])
         postVars = self.rfile.read(varLen)
         postContent = None
-        print(postVars)
+        self.debugout(postVars)
         try:
             postContent = json.loads(postVars.decode('utf-8'))
         except BaseException as e:
-            print("error parsing json object")
+            self.debugout("error parsing json object")
             self.json_header(400)
             self.wfile.write(bytes('{"status":"errors parsing json object:%s"}'%(str(e),), "utf-8"))
             return
@@ -479,7 +484,7 @@ class MyServer(BaseHTTPRequestHandler):
         try:
             multiparser = multipart.MultipartParser(self.rfile,self.headers.get_boundary(),content_length=int(self.headers['content-length']))
         except BaseException as e:
-            print("multipart parsing error: "+ str(e))
+            self.debugout("multipart parsing error: "+ str(e))
             return
         key = multiparser.get("key")
         user_id = multiparser.get("user")
@@ -487,19 +492,19 @@ class MyServer(BaseHTTPRequestHandler):
         #print("multipart user:"+str(user_id.value))
         if user_id is None or key is None:
             self.json_header(400)
-            print("userid or key not well-formatted")
+            self.debugout("userid or key not well-formatted")
             self.wfile.write(bytes('{"msg":"invalid key field"}', "utf-8"))
             return
 
         auth_result = self.authenticate(user_id.value,key.value)
         if auth_result == -1:
             self.json_header(400)
-            print("auth invalid key")
+            self.debugout("auth invalid key")
             self.wfile.write(bytes('{"status":"error","msg":"invalid key"}', "utf-8"))
             return
         elif auth_result == -2:
             self.json_header(400)
-            print("invalid user id")
+            self.debugout("invalid user id")
             self.wfile.write(bytes('{"status":"error","msg":"invalid user id"}', "utf-8"))
             return
 
@@ -509,11 +514,11 @@ class MyServer(BaseHTTPRequestHandler):
         connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
         curMy = connMy.cursor()
         for part in multiparser:
-            print(part.name)
+            self.debugout(part.name)
         uploadedFile = multiparser.get("uploadedfile")
         if uploadedFile is None:
             self.json_header(400)
-            print("invalid uploaded image")
+            self.debugout("invalid uploaded image")
             self.wfile.write(bytes('{"msg":"invalid uploaded image"}', "utf-8"))
             return
         fileExt = os.path.splitext(uploadedFile.filename)[1]
@@ -644,54 +649,71 @@ class MyServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes('{"status":"error","msg":"bad phone number"}', "utf-8"))
             return
         
+        res = requests.get("http://apilayer.net/api/validate?access_key=afe1b8406a16a12087107bcaa5c483eb&number=%s&country_code=US&format=1"%(phoneNumber,))
+        telInfo = None
+        try:
+            telInfo = json.loads(res.text)
+        except BaseException as e:
+            self.debugout("error: Numverify returns a invalid json object. Details:" + str(e))
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"Numverify returns an invalid json object"}', "utf-8"))
+            return
+
+        carrier = ''
+
+        #overloading unrecognized carrier logic
+        if telInfo is None:
+            self.debugout("error: telInfo is null" )
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"telInfo is null"}', "utf-8"))
+            return
+        elif ('carrier' not in telInfo and 'carrier' not in postContent) or ('carrier' in telInfo and telInfo['carrier']=='' and 'carrier' not in postContent):
+            self.debugout("error: carrier required but not present in request" )
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"Carrier required but not present in request"}', "utf-8"))
+            return
+        elif 'carrier' in telInfo and telInfo['carrier']!='':
+            carrier = telInfo['carrier']
+        elif postContent['carrier']==None or postContent['carrier']=='':
+            self.debugout("error: carrier required but posted carrier is null or empty" )
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"carrier required but posted carrier is null or empty"}', "utf-8"))
+            return
+        else:
+            carrier = postContent['carrier']
+
+
+
+        
+
+        activationCode = ''.join(random.SystemRandom().choice(string.digits) for _ in range(6))
+
+        res = self.sendToNumber(phoneNumber,carrier,activationCode)
+        if res == -1:
+            self.json_header(400)
+            self.wfile.write(bytes('{"status":"error","msg":"unrecognized carrier"}', "utf-8"))
+            return
+
+
+
+
         conf = Config()     #load configuration
-        connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8') 
+        connMy = MySQLdb.connect(host=conf.host, user=conf.username,passwd=conf.password,db='fiir',charset='utf8')
         curMy = connMy.cursor()
-        query = "INSERT INTO USER (phone_number,invited_by,email_address,salt) VALUES (%s,%s,%s,'');"
-        curMy.execute(query,(phoneNumber,invitedBy,email));
+
+        query = "INSERT INTO USER (phone_number,invited_by,email_address,activation_code,salt) VALUES (%s,%s,%s,%s,'');"
+        curMy.execute(query,(phoneNumber,invitedBy,email,activationCode));
         connMy.commit();
 
         query ="SELECT LAST_INSERT_ID();"
         curMy.execute(query);
         user_id = curMy.fetchone()[0]
 
-
-        res = requests.get("http://apilayer.net/api/validate?access_key=afe1b8406a16a12087107bcaa5c483eb&number=%s&country_code=US&format=1"%(phoneNumber,))
-        telInfo = None
-        try:
-            telInfo = json.loads(res.text)
-        except BaseException as e:
-            print("error: " + str(e))
-
-
-
-        if telInfo is not None and 'line_type' in telInfo and 'carrier' in telInfo and 'location' in telInfo:
-
-
+        if 'line_type' in telInfo and 'location' in telInfo:
 
             query = "UPDATE USER SET tel_carrier = %s, tel_location = %s, tel_line_type = %s WHERE id = %s;"
-            curMy.execute(query,(telInfo['carrier'],telInfo['location'],telInfo['line_type'],user_id));
+            curMy.execute(query,(carrier,telInfo['location'],telInfo['line_type'],user_id));
             connMy.commit();
-        
-        if telInfo is not None and 'carrier' in telInfo:
-
-            activationCode = ''.join(random.SystemRandom().choice(string.digits) for _ in range(6))
-
-            res = self.sendToNumber(phoneNumber,telInfo['carrier'],activationCode)
-            if res == -1:
-                self.json_header(400)
-                self.wfile.write(bytes('{"status":"error","msg":"unrecognized carrier"}', "utf-8"))
-                return
-
-
-            query = "UPDATE USER SET activation_code = %s WHERE id = %s;"
-            curMy.execute(query,(activationCode,user_id));
-            connMy.commit();
-        else:
-            self.json_header(400)
-            self.wfile.write(bytes('{"status":"error","msg":"phone number invalid, no carrier detected"}', "utf-8"))
-            return
-
 
         connMy.close()
 
@@ -761,21 +783,33 @@ class MyServer(BaseHTTPRequestHandler):
         while remainbytes>0:
             line = self.rfile.readline()
             remainbytes -= len(line)
-            print(line)
+            self.debugout(line)
         return (True,"success")
 
     def sendToNumber(self,phoneNumber,carrier,msgToSend):
-        if carrier == 'AT&T Mobility LLC':
+        if carrier == 'AT&T Mobility LLC' or carrier == 'att':
             toaddrs = phoneNumber + '@txt.att.net'
-        elif carrier =='Sprint Corp.':
+        elif carrier =='Sprint Corp.' or carrier == 'sprint':
             toaddrs = phoneNumber + '@messaging.sprintpcs.com'
+        elif carrier == 'verizon':
+            toaddrs = phoneNumber + '@vtext.com'
+        elif carrier == 'uscellular':
+            toaddrs = phoneNumber + '@email.uscc.net'
+        elif carrier == 'virgin':
+            toaddrs = phoneNumber + '@vmobl.com'
+        elif carrier == 'alltel':
+            toaddrs = phoneNumber + '@message.alltel.com'
+        elif carrier == 'tmobile':
+            toaddrs = phoneNumber + '@tmomail.net'
+        elif carrier == 'boost':
+            toaddrs = phoneNumber + '@myboostmobile.com'
         else:
-            print("unrecognized carrier:"+carrier)
+            self.debugout("unrecognized carrier:"+carrier)
             return -1
-        print("send to number:"+phoneNumber)
+        self.debugout("send to number:"+phoneNumber)
         fromaddr = 'fiirappmain@gmail.com'
         msg =  str(msgToSend)
-        print(msg)
+        self.debugout(msg)
         server = smtplib.SMTP("smtp.gmail.com:587")
 
         server.starttls()
