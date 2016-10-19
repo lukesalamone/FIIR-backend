@@ -9,43 +9,110 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="luke.com.posttest.MainActivity">
 
-    <WebView
-        android:layout_width="wrap_content"
-        android:layout_height="300dp"
-        android:id="@+id/webView"
-        android:layout_centerHorizontal="true" />
-
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_width="match_parent"
         android:id="@+id/textView"
-        android:layout_centerHorizontal="true"
-        android:text="location"
-        android:layout_below="@+id/webView" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="14dp"
+        android:layout_marginEnd="14dp"
+        android:background="#88d4ff"
+        android:text="sample text"
+        android:padding="5dp"
+        android:textColor="#000000"
+        android:layout_height="60dp"
+        android:textAlignment="gravity"
+        android:gravity="center_vertical|center_horizontal" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="PIC 1"
-        android:id="@+id/pic1"
-        android:onClick="pic1"
-        android:layout_centerHorizontal="true"
-        android:layout_toLeftOf="@+id/pic2"
-        android:layout_alignTop="@+id/pic2" />
+        android:text="/users/setPromo"
+        android:id="@+id/btn1"
+        android:onClick="one"
+        android:layout_below="@+id/textView"
+        android:layout_marginTop="5dp"
+        android:layout_width="200dp"
+        android:layout_centerInParent="true"
+        android:layout_height="wrap_content" />
 
     <Button
-        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="PIC 2"
-        android:id="@+id/pic2"
-        android:onClick="pic2"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="72dp"
-        android:layout_marginEnd="72dp"
-        android:layout_marginBottom="100dp" />
+        android:text="/pics/created"
+        android:id="@+id/btn2"
+        android:onClick="two"
+        android:layout_below="@+id/btn1"
+        android:layout_centerInParent="false"
+        android:layout_centerHorizontal="true"
+        android:layout_width="200dp" />
+
+    <Button
+        android:layout_height="wrap_content"
+        android:text="/pics/flag"
+        android:id="@+id/btn3"
+        android:onClick="three"
+        android:layout_below="@+id/btn2"
+        android:layout_centerInParent="false"
+        android:layout_centerHorizontal="true"
+        android:layout_width="200dp" />
+
+    <Button
+        android:layout_height="wrap_content"
+        android:text="/pics/hide"
+        android:id="@+id/btn4"
+        android:onClick="four"
+        android:layout_below="@+id/btn3"
+        android:layout_centerInParent="false"
+        android:layout_centerHorizontal="true"
+        android:layout_width="200dp" />
+
+    <Button
+        android:layout_height="wrap_content"
+        android:text="/friends/list"
+        android:id="@+id/btn5"
+        android:onClick="five"
+        android:layout_below="@+id/btn4"
+        android:layout_centerInParent="false"
+        android:layout_centerHorizontal="true"
+        android:layout_width="200dp" />
+
+    <Button
+        android:layout_height="wrap_content"
+        android:text="/friends/add"
+        android:id="@+id/btn6"
+        android:onClick="six"
+        android:layout_below="@+id/btn5"
+        android:layout_centerInParent="false"
+        android:layout_centerHorizontal="true"
+        android:layout_width="200dp" />
+
+    <Button
+        android:layout_height="wrap_content"
+        android:text="/friends/remove"
+        android:id="@+id/btn7"
+        android:onClick="seven"
+        android:layout_below="@+id/btn6"
+        android:layout_centerInParent="false"
+        android:layout_centerHorizontal="true"
+        android:layout_width="200dp" />
+
+    <Button
+        android:layout_height="wrap_content"
+        android:text="/settings/updateEmail"
+        android:id="@+id/btn8"
+        android:onClick="eight"
+        android:layout_below="@+id/btn7"
+        android:layout_centerInParent="false"
+        android:layout_centerHorizontal="true"
+        android:layout_width="200dp" />
+
+    <Button
+        android:layout_height="wrap_content"
+        android:text="/settings/updatePhone"
+        android:id="@+id/btn9"
+        android:onClick="nine"
+        android:layout_below="@+id/btn8"
+        android:layout_centerInParent="false"
+        android:layout_centerHorizontal="true"
+        android:layout_width="200dp" />
 
 </RelativeLayout>

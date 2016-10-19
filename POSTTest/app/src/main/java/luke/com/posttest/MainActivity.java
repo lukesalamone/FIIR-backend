@@ -5,8 +5,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.TextView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -18,27 +20,20 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     String TAG = "MainActivity";
-    String loc;
     URL url;
     TextView textView;
-    WebView webView;
-
-
-    public MainActivity(){
-        try {
-            url = new URL("http://tester.lukesalamone.com/post_test.php");
-        }catch(MalformedURLException e){
-            // do nothing
-        }
-
-        loc = "http://tester.lukesalamone.com/";
-    }
+    final String base = "http://fiirapp.ddns.net:9096";
+    final String key = "DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS";
+    final Integer userid = 1;
+    PostFactory post;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         textView = (TextView) findViewById(R.id.textView);
-        webView = (WebView) findViewById(R.id.webView);
+        post = new PostFactory(base);
 
         int SDK_INT = android.os.Build.VERSION.SDK_INT;
         if (SDK_INT > 8) {
@@ -56,84 +51,119 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void pic1(View view){
-        HashMap<String, String> params = new HashMap<>();
-        params.put("operation", "pic1");
-        String response = performPostCall(params, "message");
-        textView.setText(response);
-        webView.loadUrl("http://tester.lukesalamone.com/" + response);
-    }
-
-    public void pic2(View view){
-        HashMap<String, String> params = new HashMap<>();
-        params.put("operation", "pic2");
-        String response = performPostCall(params, "message");
-        textView.setText(response);
-        webView.loadUrl("http://tester.lukesalamone.com/" + response);
-    }
-
-    void sampleGetRequest(){
-        HashMap<String, String> params = new HashMap<>();
-        params.put("operation", "sampleOperation");
-        String response = performPostCall(params, "message");
-        textView.setText(response);
-        Log.i(TAG, response);
-    }
-
-    String  performPostCall(HashMap<String, String> postDataParams, String key) {
-        String response = "";
+    public void one(View view){
+        textView.setText("sending...");
         try {
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(15000);
-            conn.setConnectTimeout(15000);
-            conn.setRequestMethod("POST");
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-
-
-            OutputStream os = conn.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(os, "UTF-8"));
-            writer.write(getPostDataString(postDataParams));
-
-            writer.flush();
-            writer.close();
-            os.close();
-            int responseCode=conn.getResponseCode();
-
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                String line;
-                BufferedReader br=new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                while ((line=br.readLine()) != null) {
-                    response+=line;
-                }
-            }
-            else {
-                response="";
-
-            }
-        } catch (Exception e) {
+            JSONObject params = new JSONObject();
+            params.put("key", key);
+            params.put("user", userid);
+            params.put("friend", new Integer(666));
+            String response = post.performPostRequest("/users/setPromo", params);
+            textView.setText(response);
+        } catch (JSONException e){
             e.printStackTrace();
         }
-
-        return response;
-
     }
-
-    String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
-        for(Map.Entry<String, String> entry : params.entrySet()){
-            if (first)
-                first = false;
-            else
-                result.append("&");
-
-            result.append(URLEncoder.encode(entry.getKey(), "UTF-8"));
-            result.append("=");
-            result.append(URLEncoder.encode(entry.getValue(), "UTF-8"));
+    public void two(View view){
+        try {
+            textView.setText("sending...");
+            JSONObject params = new JSONObject();
+            params.put("key", key);
+            params.put("user", userid);
+            String response = post.performPostRequest("/pics/created", params);
+            textView.setText(response);
+        } catch(JSONException e){
+            e.printStackTrace();
         }
-
-        return result.toString();
+    }
+    public void three(View view){
+        try {
+            textView.setText("sending...");
+            JSONObject params = new JSONObject();
+            params.put("key", key);
+            params.put("user", userid);
+            params.put("picId", new Integer(1234));
+            String response = post.performPostRequest("/pics/flag", params);
+            textView.setText(response);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+    public void four(View view){
+        try {
+            textView.setText("sending...");
+            JSONObject params = new JSONObject();
+            params.put("key", key);
+            params.put("user", userid);
+            params.put("picId", new Integer(1234));
+            String response = post.performPostRequest("/pics/hide", params);
+            textView.setText(response);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+    public void five(View view){
+        try{
+            textView.setText("sending...");
+            JSONObject params = new JSONObject();
+            params.put("key", key);
+            params.put("user", userid);
+            String response = post.performPostRequest("/friends/list", params);
+            textView.setText(response);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+    public void six(View view){
+        try {
+            textView.setText("sending...");
+            JSONObject params = new JSONObject();
+            params.put("key", key);
+            params.put("user", userid);
+            params.put("friend", new Integer(987));
+            String response = post.performPostRequest("/friends/add", params);
+            textView.setText(response);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+    public void seven(View view){
+        try {
+            textView.setText("sending...");
+            JSONObject params = new JSONObject();
+            params.put("key", key);
+            params.put("user", userid);
+            params.put("friend", new Integer(987));
+            String response = post.performPostRequest("/friends/remove", params);
+            textView.setText(response);
+        }catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+    public void eight(View view){
+        try {
+            textView.setText("sending...");
+            JSONObject params = new JSONObject();
+            params.put("key", key);
+            params.put("user", userid);
+            params.put("email", "test@test.com");
+            String response = post.performPostRequest("/settings/update_email", params);
+            textView.setText(response);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+    }
+    public void nine(View view){
+        try {
+            textView.setText("sending...");
+            JSONObject params = new JSONObject();
+            params.put("key", key);
+            params.put("user", userid);
+            params.put("phone", "1234567890");
+            String response = post.performPostRequest("/settings/update_phone", params);
+            textView.setText(response);
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
     }
 }

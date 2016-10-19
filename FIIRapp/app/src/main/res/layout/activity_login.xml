@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/bg"
+    android:id="@+id/login_bg">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Log In"
+        android:id="@+id/signup_title"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#fff"
+        android:textSize="50dp"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentTop="false"
+        android:layout_centerHorizontal="true"
+        android:textAllCaps="true" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:id="@+id/divider0"
+        android:layout_below="@+id/signup_title"
+        android:background="#fff"
+        android:layout_marginTop="-10dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="phone"
+        android:id="@+id/phone_input"
+        android:layout_below="@+id/divider0"
+        android:layout_marginTop="100dp"
+        android:layout_alignLeft="@+id/divider"
+        android:layout_alignStart="@+id/divider"
+        android:layout_alignEnd="@+id/divider0"
+        android:layout_alignRight="@+id/divider0"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:background="#fff"
+        android:id="@+id/divider"
+        android:layout_below="@+id/phone_input"
+        android:layout_height="1dp"
+        android:text="sample"
+        android:textSize="0sp"
+        android:layout_marginLeft="70dp"
+        android:layout_marginRight="70dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="phone number"
+        android:ems="10"
+        android:textColor="#fff"
+        android:textAllCaps="true"
+        android:id="@+id/phone_label"
+        android:layout_below="@+id/phone_input"
+        android:layout_alignLeft="@+id/divider" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="login"
+        android:id="@+id/login"
+        android:layout_alignBaseline="@+id/register"
+        android:layout_alignBottom="@+id/register"
+        android:layout_alignRight="@+id/divider"
+        android:layout_alignEnd="@+id/divider" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="register"
+        android:id="@+id/register"
+        android:layout_marginBottom="27dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignLeft="@+id/phone_label"
+        android:layout_alignStart="@+id/phone_label" />
+
+</RelativeLayout>

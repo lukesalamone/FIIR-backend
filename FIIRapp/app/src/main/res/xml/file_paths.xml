@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-path name="FIIR" path="Android/data/com.example.package.name/files/Pictures" />
+    <external-path
+        name="FIIR"
+        path="Android/data/luke.com.fiirapp/files/Pictures" />
 </paths>

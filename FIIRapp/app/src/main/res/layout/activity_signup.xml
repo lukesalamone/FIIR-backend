@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/bg"
+    android:id="@+id/signup_bg">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Register"
+        android:id="@+id/signup_title"
+        android:layout_gravity="center_horizontal"
+        android:textColor="#fff"
+        android:textSize="50dp"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentTop="false"
+        android:layout_centerHorizontal="true"
+        android:textAllCaps="true" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:id="@+id/divider0"
+        android:layout_below="@+id/signup_title"
+        android:background="#fff"
+        android:layout_marginTop="-10dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="phone"
+        android:id="@+id/phone_input"
+        android:layout_below="@+id/divider0"
+        android:layout_marginTop="40dp"
+        android:layout_alignLeft="@+id/divider"
+        android:layout_alignStart="@+id/divider"
+        android:layout_alignEnd="@+id/divider0"
+        android:layout_alignRight="@+id/divider0"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:background="#fff"
+        android:id="@+id/divider"
+        android:layout_below="@+id/phone_input"
+        android:layout_height="1dp"
+        android:text="sample"
+        android:textSize="0sp"
+        android:layout_marginLeft="70dp"
+        android:layout_marginRight="70dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="phone number"
+        android:ems="10"
+        android:textColor="#fff"
+        android:textAllCaps="true"
+        android:id="@+id/phone_label"
+        android:layout_below="@+id/phone_input"
+        android:layout_alignLeft="@+id/divider" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/email_input"
+        android:ems="10"
+        android:layout_marginTop="40dp"
+        android:layout_below="@+id/phone_label"
+        android:layout_alignLeft="@+id/divider2"
+        android:layout_alignStart="@+id/divider2"
+        android:layout_alignRight="@+id/divider2"
+        android:layout_alignEnd="@+id/divider2" />
+
+    <EditText
+        android:layout_height="1dp"
+        android:background="#fff"
+        android:id="@+id/divider2"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/email_input"
+        android:layout_marginLeft="70dp"
+        android:layout_marginRight="70dp"
+        android:layout_width="match_parent"
+        android:text="sample"
+        android:textSize="0sp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:ems="10"
+        android:id="@+id/invited_input"
+        android:layout_below="@+id/email_label"
+        android:layout_alignLeft="@+id/invited_label"
+        android:layout_alignStart="@+id/invited_label"
+        android:layout_marginTop="40dp"
+        android:layout_alignRight="@+id/divider3"
+        android:layout_alignEnd="@+id/divider3" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#fff"
+        android:id="@+id/divider3"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/invited_input"
+        android:layout_marginLeft="70dp"
+        android:layout_marginRight="70dp"
+        android:text="sample"
+        android:textSize="0sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="invited by (optional)"
+        android:textColor="#fff"
+        android:textAllCaps="true"
+        android:id="@+id/invited_label"
+        android:layout_below="@+id/divider3"
+        android:layout_alignLeft="@+id/divider2" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="wiscmail address"
+        android:textColor="#fff"
+        android:textAllCaps="true"
+        android:id="@+id/email_label"
+        android:layout_below="@+id/divider2"
+        android:layout_alignLeft="@+id/divider" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GUCCI"
+        android:id="@+id/button"
+        android:layout_marginBottom="30dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

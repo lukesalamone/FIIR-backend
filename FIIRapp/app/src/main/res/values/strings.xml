@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">FIIR app</string>
+    <string name="album_name">FIIR</string>
+    <string name="carrier_prompt">Select carrier</string>
+    <string-array name="carriers">
+        <item>Verizon</item>
+        <item>AT &amp; T</item>
+        <item>T-Mobile</item>
+        <item>US Cellular</item>
+        <item>Sprint</item>
+        <item>Virgin Mobile</item>
+        <item>Alltel</item>
+        <item>Boost Mobile</item>
+    </string-array>
 </resources>
