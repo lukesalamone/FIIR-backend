@@ -23,9 +23,9 @@ class fiirRestTester:
         print("create user")
         headers = {'Content-Type': 'application/json'}
         if carrier is None:
-            quest = '{"phone":"%s", "invitedby":%s, "email":"%s"}' %(phone,invitedBy,email)
+            quest = '{"phone2":"%s", "invitedby":%s, "email":"%s"}' %(phone,invitedBy,email)
         else:
-            quest = '{"phone":"%s", "invitedby":%s, "email":"%s", "carrier":"%s"}' %(phone,invitedBy,email,carrier)
+            quest = '{"phone2":"%s", "invitedby":%s, "email":"%s", "carrier":"%s"}' %(phone,invitedBy,email,carrier)
         r = requests.post("http://fiirapp.ddns.net:9096/users/create", data=quest, headers=headers)
         print(str(r))
         print(str(r.text))

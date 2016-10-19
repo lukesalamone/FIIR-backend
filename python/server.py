@@ -484,7 +484,11 @@ class MyServer(BaseHTTPRequestHandler):
         try:
             multiparser = multipart.MultipartParser(self.rfile,self.headers.get_boundary(),content_length=int(self.headers['content-length']))
         except BaseException as e:
+
             self.debugout("multipart parsing error: "+ str(e))
+            self.json_header(400)
+            self.wfile.write(bytes('{"msg":"bad post request format"}', "utf-8"))
+
             return
         key = multiparser.get("key")
         user_id = multiparser.get("user")
@@ -560,6 +564,10 @@ class MyServer(BaseHTTPRequestHandler):
             friend = postContent['friend']
 
         else:
+            self.debugout("bad request format, " + "please use the format: {'key':'DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS', 'user': 1, 'friend':18}")
+            self.debugout("this is what user sent: "+ str(postContent))
+
+
             self.json_header(400)
             self.wfile.write(bytes('{"status":"errors parsing json object"}', "utf-8"))
             return
@@ -585,6 +593,9 @@ class MyServer(BaseHTTPRequestHandler):
             friend = postContent['friend']
 
         else:
+            self.debugout("bad request format, " + "please use the format: {'key':'DX0SRPYUYZQ4ZQXYSRNWOGZZCPCMIWQS', 'user': 1, 'friend':18}")
+            self.debugout("this is what user sent: "+ str(postContent))
+
             self.json_header(400)
             self.wfile.write(bytes('{"status":"errors parsing json object"}', "utf-8"))
             return
@@ -640,11 +651,15 @@ class MyServer(BaseHTTPRequestHandler):
             invitedBy = postContent['invitedby']
             email = postContent['email']
         else:
+            self.debugout("bad sign up request, " + "please use the format: {'phone':'(608)320-7727', 'invitedby': 1, 'email':'zarickzheng@gmail.com'}")
+            self.debugout("notice: phone format could be 'XXX-XXX-XXXX', '(XXX)XXX-XXXX', '+01 XXX XXX XXXX' or 'XXXXXXXXXX' ")
+            self.debugout("this is what user sent: "+ str(postContent))
             self.json_header(400)
-            self.wfile.write(bytes('{"status":"error","msg":"incomplete sign up request"}', "utf-8"))
+            self.wfile.write(bytes('{"status":"error","msg":"bad sign up request format, please see the manual"}', "utf-8"))
             return
 
         if len(phoneNumber)>10:
+            self.debugout("phone number exceed permitted length")
             self.json_header(400)
             self.wfile.write(bytes('{"status":"error","msg":"bad phone number"}', "utf-8"))
             return
@@ -690,6 +705,7 @@ class MyServer(BaseHTTPRequestHandler):
 
         res = self.sendToNumber(phoneNumber,carrier,activationCode)
         if res == -1:
+            self.debugout("unrecognized carrier:'"+carrier+"'")
             self.json_header(400)
             self.wfile.write(bytes('{"status":"error","msg":"unrecognized carrier"}', "utf-8"))
             return
